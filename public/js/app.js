@@ -57,7 +57,7 @@ async function renderApp() {
       dob = dobSetting.value;
       const days = daysBetween(dob, currentDate);
       if (days >= 0) {
-        dayCountStr = `<div style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: -4px; margin-bottom: 12px;">(${t('logs.day_age')} ${days})</div>`;
+        dayCountStr = `<div style="text-align: center; color: var(--text-primary); font-size: var(--font-size-lg); font-weight: 600;">(${t('logs.day_age')} ${days})</div>`;
       }
     }
   } catch (err) {
@@ -89,12 +89,14 @@ async function renderApp() {
       </header>
 
       <!-- Date Navigator -->
-      <div class="date-nav">
-        <button class="icon-btn" id="prev-day">◀</button>
-        <span class="date-label" id="date-label">${dateLabel}</span>
-        <button class="icon-btn" id="next-day" ${isToday(currentDate) ? 'disabled' : ''}>▶</button>
+      <div style="background: var(--bg-secondary); padding-bottom: ${dayCountStr ? 'var(--space-md)' : '0'};">
+        <div class="date-nav" style="${dayCountStr ? 'padding-bottom: 4px;' : ''}">
+          <button class="icon-btn" id="prev-day">◀</button>
+          <span class="date-label" id="date-label">${dateLabel}</span>
+          <button class="icon-btn" id="next-day" ${isToday(currentDate) ? 'disabled' : ''}>▶</button>
+        </div>
+        ${dayCountStr}
       </div>
-      ${dayCountStr}
 
       <!-- Tab Bar -->
       <div class="tab-bar">
