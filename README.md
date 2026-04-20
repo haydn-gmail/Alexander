@@ -19,15 +19,15 @@ A mobile-first web app for tracking newborn feeding and elimination records. Bui
 git clone https://github.com/YOUR_USERNAME/Alexander.git
 cd Alexander
 
-# Set your JWT secret
+# Configure
 cp .env.example .env
-# Edit .env and change the JWT_SECRET
+# Edit .env — set JWT_SECRET and HOST_PORT (default: 3001)
 
 # Start the container
 docker compose up -d
 
 # Open in browser
-# http://<your-server-ip>:3000
+# http://<your-server-ip>:3001
 ```
 
 ## Default Login PINs
