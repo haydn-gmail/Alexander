@@ -13,6 +13,22 @@
     "summary": "總覽",
     "logout": "登出"
   },
+  "logs": {
+    "timeline_logs": "時間軸記錄",
+    "summary_logs": "每日總覽記錄",
+    "timeline_header": "寶寶時間軸記錄",
+    "summary_header": "寶寶每日總覽",
+    "breast": "親餵",
+    "formula": "配方",
+    "bottle_bm": "瓶餵",
+    "urine": "小便",
+    "stool": "大便",
+    "details": "備註",
+    "feeds": "餵食",
+    "total": "共",
+    "diapers": "尿布",
+    "day_age": "日齡"
+  },
   "entry_form": {
     "title": "新增記錄",
     "edit_title": "編輯記錄",

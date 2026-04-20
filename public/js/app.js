@@ -57,7 +57,7 @@ async function renderApp() {
       dob = dobSetting.value;
       const days = daysBetween(dob, currentDate);
       if (days >= 0) {
-        dayCountStr = ` <span style="font-size: 0.7em; font-weight: normal; opacity: 0.8; margin-left: 8px;">(Day ${days})</span>`;
+        dayCountStr = `<div style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: -4px; margin-bottom: 12px;">(${t('logs.day_age')} ${days})</div>`;
       }
     }
   } catch (err) {
@@ -78,7 +78,7 @@ async function renderApp() {
       <header class="app-header">
         <div class="header-left">
           <span class="app-logo">🍼</span>
-          <span class="app-title">${t('app_name')}${dayCountStr}</span>
+          <span class="app-title">${t('app_name')}</span>
         </div>
         <div class="header-right">
           <button class="lang-toggle" id="lang-toggle">${getLang() === 'en' ? '中文' : 'EN'}</button>
@@ -94,6 +94,7 @@ async function renderApp() {
         <span class="date-label" id="date-label">${dateLabel}</span>
         <button class="icon-btn" id="next-day" ${isToday(currentDate) ? 'disabled' : ''}>▶</button>
       </div>
+      ${dayCountStr}
 
       <!-- Tab Bar -->
       <div class="tab-bar">
@@ -111,16 +112,30 @@ async function renderApp() {
       </main>
 
       <!-- Detailed Logs -->
-      <div class="logs-section" style="padding: 0 var(--space-md) 100px var(--space-md);">
+      <div class="logs-section" style="padding: 0 var(--space-md) var(--space-sm) var(--space-md);">
         <div style="display: flex; gap: 10px;">
           <button id="toggle-logs-btn" style="flex: 1; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: var(--space-sm); background: var(--bg-card); color: var(--text-secondary); font-size: var(--font-size-sm); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
-            ${iconList} Toggle Detailed Logs
+            ${iconTimeline} ${t('logs.timeline_logs')}
           </button>
           <button id="copy-logs-btn" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: var(--space-sm) 12px; background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Copy to Clipboard">${iconCopy}</button>
           ${canEdit ? `<button id="download-pdf-btn" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: var(--space-sm) 12px; background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Export PDF">${iconDownload}</button>` : ''}
         </div>
         <div id="logs-container" style="display: none; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); margin-top: var(--space-sm); padding: var(--space-md); max-height: 400px; overflow-y: auto;">
           <pre id="logs-content" style="margin: 0; font-family: monospace; font-size: 13px; color: #a0a0b8; white-space: pre-wrap; word-break: break-word;"></pre>
+        </div>
+      </div>
+
+      <!-- Daily Summary Logs -->
+      <div class="summary-logs-section" style="padding: 0 var(--space-md) 100px var(--space-md);">
+        <div style="display: flex; gap: 10px;">
+          <button id="toggle-summary-logs-btn" style="flex: 1; border: 1px solid var(--accent-formula); border-radius: var(--border-radius-sm); padding: var(--space-sm); background: rgba(76, 201, 240, 0.1); color: var(--accent-formula); font-size: var(--font-size-sm); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+            ${iconSummary} ${t('logs.summary_logs')}
+          </button>
+          <button id="copy-summary-logs-btn" style="border: 1px solid var(--accent-formula); border-radius: var(--border-radius-sm); padding: var(--space-sm) 12px; background: rgba(76, 201, 240, 0.1); color: var(--accent-formula); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Copy to Clipboard">${iconCopy}</button>
+          ${canEdit ? `<button id="download-summary-pdf-btn" style="border: 1px solid var(--accent-formula); border-radius: var(--border-radius-sm); padding: var(--space-sm) 12px; background: rgba(76, 201, 240, 0.1); color: var(--accent-formula); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Export Summary PDF">${iconDownload}</button>` : ''}
+        </div>
+        <div id="summary-logs-container" style="display: none; background: var(--bg-input); border: 1px solid var(--accent-formula); border-radius: var(--border-radius-sm); margin-top: var(--space-sm); padding: var(--space-md); max-height: 400px; overflow-y: auto;">
+          <pre id="summary-logs-content" style="margin: 0; font-family: monospace; font-size: 13px; color: var(--accent-formula); white-space: pre-wrap; word-break: break-word;"></pre>
         </div>
       </div>
 
@@ -160,6 +175,23 @@ async function renderApp() {
     }
   });
 
+  document.getElementById('copy-summary-logs-btn').addEventListener('click', async () => {
+    try {
+      const text = document.getElementById('summary-logs-content').textContent;
+      if (!text || text === 'Loading logs...' || text === '') {
+         alert('Please toggle the daily summary logs open first to load the data.');
+         return;
+      }
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copy-summary-logs-btn');
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = '✅';
+      setTimeout(() => btn.innerHTML = oldHtml, 2000);
+    } catch (err) {
+      alert('Failed to copy: ' + err.message);
+    }
+  });
+
   if (canEdit) {
     document.getElementById('settings-btn').addEventListener('click', () => {
       showSettingsForm();
@@ -181,7 +213,7 @@ async function renderApp() {
         container.style.fontFamily = 'Helvetica, Arial, sans-serif';
         container.style.color = '#333';
         
-        let html = '<h1 style="text-align:center; margin-bottom: 20px;">Baby Tracker Records</h1>';
+        let html = `<h1 style="text-align:center; margin-bottom: 20px;">${t('logs.timeline_header')}</h1>`;
         
         for (const e of entries) {
             let parts = [`<strong>${e.date} @ ${e.time}</strong>`];
@@ -197,20 +229,20 @@ async function renderApp() {
                if (e.breast_right !== 'Latching' && e.breast_right !== '含乳') bDetails.push(e.breast_right);
             }
             if (bs.length) {
-               parts.push(`<strong>Breast:</strong> ${bs.join(', ')}`);
+               parts.push(`<strong>${t('logs.breast')}:</strong> ${bs.join(', ')}`);
             }
 
-            if (e.formula_ml) parts.push(`<strong>Formula:</strong> ${e.formula_ml}ml`);
-            if (e.bottle_ml) parts.push(`<strong>Bottle(BM):</strong> ${e.bottle_ml}ml`);
-            if (e.urine) parts.push(`<strong>Urine</strong>`);
+            if (e.formula_ml) parts.push(`<strong>${t('logs.formula')}:</strong> ${e.formula_ml}${t('common.ml')}`);
+            if (e.bottle_ml) parts.push(`<strong>${t('logs.bottle_bm')}:</strong> ${e.bottle_ml}${t('common.ml')}`);
+            if (e.urine) parts.push(`<strong>${t('logs.urine')}</strong>`);
             if (e.stool) {
-               parts.push(e.stool_color ? `<strong>Stool:</strong> ${e.stool_color}` : `<strong>Stool</strong>`);
+               parts.push(e.stool_color ? `<strong>${t('logs.stool')}:</strong> ${e.stool_color}` : `<strong>${t('logs.stool')}</strong>`);
             }
 
             let details = [];
             if (bDetails.length) details.push([...new Set(bDetails)].join(', '));
             if (e.comments) details.push(e.comments);
-            if (details.length) parts.push(`<strong>Details:</strong> ${details.join(' | ')}`);
+            if (details.length) parts.push(`<strong>${t('logs.details')}:</strong> ${details.join(' | ')}`);
 
             html += `<div style="margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; font-size: 13px; line-height: 1.5;">${parts.join(' &nbsp;|&nbsp; ')}</div>`;
         }
@@ -231,6 +263,73 @@ async function renderApp() {
         console.error(e);
         alert('Failed to generate PDF: ' + e.message);
         document.getElementById('download-pdf-btn').innerHTML = '📄';
+      }
+    });
+
+    document.getElementById('download-summary-pdf-btn').addEventListener('click', async () => {
+      try {
+        const btn = document.getElementById('download-summary-pdf-btn');
+        const oldHtml = btn.innerHTML;
+        btn.innerHTML = '⏳';
+        
+        const entries = await api.getAllEntries();
+        const grouped = {};
+        for (const e of entries) {
+           if (!grouped[e.date]) {
+               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0 };
+           }
+           if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
+           if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
+           if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
+           if (e.urine) grouped[e.date].urine++;
+           if (e.stool) grouped[e.date].stool++;
+        }
+        
+        const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
+        const dobSetting = await api.getSetting('dob');
+        const dobVal = dobSetting && dobSetting.value ? dobSetting.value : null;
+
+        const container = document.createElement('div');
+        container.style.padding = '20px';
+        container.style.fontFamily = 'Helvetica, Arial, sans-serif';
+        container.style.color = '#333';
+        
+        let html = `<h1 style="text-align:center; margin-bottom: 20px; color: #4cc9f0;">${t('logs.summary_header')}</h1>`;
+        for (const date of dates) {
+            const sum = grouped[date];
+            let fTypes = [];
+            if (sum.breast) fTypes.push(`<strong>${t('logs.breast')}:</strong> ${sum.breast}x`);
+            if (sum.formula) fTypes.push(`<strong>${t('logs.formula')}:</strong> ${sum.formula}${t('common.ml')}`);
+            if (sum.bottle) fTypes.push(`<strong>${t('logs.bottle_bm')}:</strong> ${sum.bottle}${t('common.ml')}`);
+            let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
+
+            let prefixStr = '';
+            if (dobVal) {
+              const days = daysBetween(dobVal, date);
+              if (days >= 0) prefixStr = `<span style="opacity: 0.8; font-weight: normal;">(${t('logs.day_age')} ${days})</span> &nbsp;|&nbsp; `;
+            }
+
+            html += `<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5;">`;
+            html += `<div style="margin-bottom: 4px;"><strong>[${date}]</strong></div>`;
+            html += `<div>${prefixStr}<strong>${t('logs.feeds')}:</strong> ${sum.feeds} ${t('logs.total')}${fStr} &nbsp;|&nbsp; <strong>${t('logs.diapers')}:</strong> ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x</div>`;
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+        
+        const opt = {
+          margin:       0.5,
+          filename:     'baby_tracker_daily_summary.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        
+        await html2pdf().set(opt).from(container).save();
+        btn.innerHTML = oldHtml;
+      } catch (e) {
+        console.error(e);
+        alert('Failed to generate PDF: ' + e.message);
+        document.getElementById('download-summary-pdf-btn').innerHTML = '📄';
       }
     });
   }
@@ -275,7 +374,7 @@ async function renderApp() {
           return b.time.localeCompare(a.time);
         });
 
-        let text = 'Baby Tracker Records\n\n';
+        let text = `${t('logs.timeline_header')}\n\n`;
         for (const e of entries) {
             let parts = [`${e.date} @ ${e.time}`];
             
@@ -290,22 +389,73 @@ async function renderApp() {
                if (e.breast_right !== 'Latching' && e.breast_right !== '含乳') bDetails.push(e.breast_right);
             }
             if (bs.length) {
-               parts.push(`Breast: ${bs.join(', ')}`);
+               parts.push(`${t('logs.breast')}: ${bs.join(', ')}`);
             }
 
-            if (e.formula_ml) parts.push(`Formula: ${e.formula_ml}ml`);
-            if (e.bottle_ml) parts.push(`Bottle(BM): ${e.bottle_ml}ml`);
-            if (e.urine) parts.push(`Urine`);
+            if (e.formula_ml) parts.push(`${t('logs.formula')}: ${e.formula_ml}${t('common.ml')}`);
+            if (e.bottle_ml) parts.push(`${t('logs.bottle_bm')}: ${e.bottle_ml}${t('common.ml')}`);
+            if (e.urine) parts.push(`${t('logs.urine')}`);
             if (e.stool) {
-               parts.push(e.stool_color ? `Stool: ${e.stool_color}` : `Stool`);
+               parts.push(e.stool_color ? `${t('logs.stool')}: ${e.stool_color}` : `${t('logs.stool')}`);
             }
 
             let details = [];
             if (bDetails.length) details.push([...new Set(bDetails)].join(', '));
             if (e.comments) details.push(e.comments);
-            if (details.length) parts.push(`Details: ${details.join(' | ')}`);
+            if (details.length) parts.push(`${t('logs.details')}: ${details.join(' | ')}`);
 
             text += parts.join(' | ') + '\n';
+        }
+        logsContent.textContent = text;
+      } catch (err) {
+        logsContent.textContent = 'Failed to load logs: ' + err.message;
+      }
+    } else {
+      container.style.display = 'none';
+    }
+  });
+
+  document.getElementById('toggle-summary-logs-btn').addEventListener('click', async () => {
+    const container = document.getElementById('summary-logs-container');
+    const isHidden = container.style.display === 'none';
+    if (isHidden) {
+      container.style.display = 'block';
+      const logsContent = document.getElementById('summary-logs-content');
+      logsContent.textContent = 'Loading logs...';
+      try {
+        const entries = await api.getAllEntries();
+        const grouped = {};
+        for (const e of entries) {
+           if (!grouped[e.date]) {
+               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0 };
+           }
+           if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
+           if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
+           if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
+           if (e.urine) grouped[e.date].urine++;
+           if (e.stool) grouped[e.date].stool++;
+        }
+        
+        const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
+        const dobSetting = await api.getSetting('dob');
+        const dobVal = dobSetting && dobSetting.value ? dobSetting.value : null;
+        
+        let text = `${t('logs.summary_header')}\n\n`;
+        for (const date of dates) {
+            const sum = grouped[date];
+            let fTypes = [];
+            if (sum.breast) fTypes.push(`${t('logs.breast')}: ${sum.breast}x`);
+            if (sum.formula) fTypes.push(`${t('logs.formula')}: ${sum.formula}${t('common.ml')}`);
+            if (sum.bottle) fTypes.push(`${t('logs.bottle_bm')}: ${sum.bottle}${t('common.ml')}`);
+            let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
+            
+            let prefixStr = '';
+            if (dobVal) {
+              const days = daysBetween(dobVal, date);
+              if (days >= 0) prefixStr = `(${t('logs.day_age')} ${days}) | `;
+            }
+
+            text += `[${date}]\n${prefixStr}${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n\n`;
         }
         logsContent.textContent = text;
       } catch (err) {

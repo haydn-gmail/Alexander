@@ -13,6 +13,22 @@
     "summary": "Summary",
     "logout": "Logout"
   },
+  "logs": {
+    "timeline_logs": "Timeline Logs",
+    "summary_logs": "Daily Summary Logs",
+    "timeline_header": "Baby Tracker Timeline Records",
+    "summary_header": "Baby Tracker Daily Summaries",
+    "breast": "Breast",
+    "formula": "Formula",
+    "bottle_bm": "Bottle(BM)",
+    "urine": "Urine",
+    "stool": "Stool",
+    "details": "Details",
+    "feeds": "Feeds",
+    "total": "total",
+    "diapers": "Diapers",
+    "day_age": "Day"
+  },
   "entry_form": {
     "title": "New Entry",
     "edit_title": "Edit Entry",
