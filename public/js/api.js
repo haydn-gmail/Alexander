@@ -57,6 +57,12 @@ export async function getEntries(date) {
   return res.json();
 }
 
+export async function getAllEntries() {
+  const res = await fetch(`${BASE_URL}/entries/all`, { headers: headers() });
+  if (!res.ok) throw new Error('Failed to fetch all entries');
+  return res.json();
+}
+
 export async function getSummary(date) {
   const res = await fetch(`${BASE_URL}/entries/summary?date=${date}`, { headers: headers() });
   if (!res.ok) throw new Error('Failed to fetch summary');
@@ -103,6 +109,14 @@ export async function deleteEntry(id) {
 
 export function getExportUrl(from, to) {
   return `${BASE_URL}/entries/export?from=${from}&to=${to}`;
+}
+
+export function exportMd() {
+  return fetch(`${BASE_URL}/entries/export/md`, { headers: headers() })
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to export markdown');
+      return res.blob();
+    });
 }
 
 export async function getSetting(key) {

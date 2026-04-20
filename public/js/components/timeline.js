@@ -67,12 +67,10 @@ export function renderTimeline(container, entries, date, { onEdit, onDelete, can
     });
 
     container.querySelectorAll('.delete-btn').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = Number(btn.dataset.id);
-        if (confirm(t('timeline.delete_confirm'))) {
-          onDelete(id);
-        }
+        onDelete(id);
       });
     });
   }

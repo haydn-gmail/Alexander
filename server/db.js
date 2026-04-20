@@ -215,6 +215,18 @@ function getEntriesByRange(from, to) {
   return entries;
 }
 
+function getAllEntries() {
+  const stmt = db.prepare(
+    'SELECT * FROM entries ORDER BY date ASC, time ASC'
+  );
+  const entries = [];
+  while (stmt.step()) {
+    entries.push(stmt.getAsObject());
+  }
+  stmt.free();
+  return entries;
+}
+
 function getSummaryByDate(date) {
   const entries = getEntriesByDate(date);
   const summary = {
@@ -304,6 +316,7 @@ module.exports = {
   deleteEntry,
   getEntriesByDate,
   getEntriesByRange,
+  getAllEntries,
   getSummaryByDate,
   getEntryById,
   getSetting,

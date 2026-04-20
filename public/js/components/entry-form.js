@@ -151,9 +151,9 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
   });
 
   // Formula presets
-  container.querySelectorAll('.preset-btn').forEach((btn) => {
+  container.querySelectorAll('#formula-presets .preset-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      container.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+      container.querySelectorAll('#formula-presets .preset-btn').forEach((b) => b.classList.remove('active'));
       const ml = Number(btn.dataset.ml);
       if (formulaMl === ml) {
         formulaMl = '';

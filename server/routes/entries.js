@@ -5,6 +5,7 @@ const {
   deleteEntry,
   getEntriesByDate,
   getEntriesByRange,
+  getAllEntries,
   getSummaryByDate,
   getEntryById,
 } = require('../db');
@@ -42,6 +43,12 @@ router.get('/summary', (req, res) => {
   res.json(summary);
 });
 
+// GET /api/entries/all
+router.get('/all', (req, res) => {
+  const entries = getAllEntries();
+  res.json(entries);
+});
+
 // GET /api/entries/export?from=YYYY-MM-DD&to=YYYY-MM-DD
 router.get('/export', (req, res) => {
   const { from, to } = req.query;
@@ -73,6 +80,51 @@ router.get('/export', (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename=baby_tracker_${from}_${to}.csv`);
   res.send(csv);
+});
+
+// GET /api/entries/export/md
+router.get('/export/md', (req, res) => {
+  const entries = getAllEntries();
+
+  let md = '# Baby Tracker Records\n\n';
+  let currentDate = null;
+
+  for (const e of entries) {
+    if (e.date !== currentDate) {
+      currentDate = e.date;
+      md += `\n## ${e.date}\n\n`;
+      md += `| Time | Type | Details | Comments | Logged By |\n`;
+      md += `|---|---|---|---|---|\n`;
+    }
+
+    let type = [];
+    let details = [];
+
+    if (e.breast_right || e.breast_left) {
+      type.push('Breast');
+      if (e.breast_left) details.push(`L: ${e.breast_left}`);
+      if (e.breast_right) details.push(`R: ${e.breast_right}`);
+    }
+    if (e.formula_ml) {
+      type.push('Formula');
+      details.push(`${e.formula_ml}mL`);
+    }
+    if (e.bottle_ml) {
+      type.push('Bottle(BM)');
+      details.push(`${e.bottle_ml}mL`);
+    }
+    if (e.urine) type.push('Urine');
+    if (e.stool) {
+      type.push('Stool');
+      if (e.stool_color) details.push(e.stool_color);
+    }
+
+    md += `| ${e.time} | ${type.join(', ')} | ${details.join(', ')} | ${e.comments || ''} | ${e.created_by || ''} |\n`;
+  }
+
+  res.setHeader('Content-Type', 'text/markdown');
+  res.setHeader('Content-Disposition', `attachment; filename=baby_tracker_all.md`);
+  res.send(md);
 });
 
 // POST /api/entries — admin only
