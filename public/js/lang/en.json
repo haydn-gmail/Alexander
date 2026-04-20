@@ -68,5 +68,10 @@
     "no": "No",
     "ml": "mL",
     "add_entry": "Add Entry"
+  },
+  "settings": {
+    "title": "Settings",
+    "dob": "Baby Date of Birth",
+    "dob_desc": "Set the date of birth to track days since birth."
   }
 }

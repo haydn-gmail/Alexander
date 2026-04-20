@@ -104,3 +104,22 @@ export async function deleteEntry(id) {
 export function getExportUrl(from, to) {
   return `${BASE_URL}/entries/export?from=${from}&to=${to}`;
 }
+
+export async function getSetting(key) {
+  const res = await fetch(`${BASE_URL}/settings/${key}`, { headers: headers() });
+  if (!res.ok) throw new Error('Failed to fetch setting');
+  return res.json();
+}
+
+export async function setSetting(key, value) {
+  const res = await fetch(`${BASE_URL}/settings/${key}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify({ value }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error);
+  }
+  return res.json();
+}

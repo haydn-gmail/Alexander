@@ -27,6 +27,13 @@ export function addDays(dateStr, days) {
   return d.toISOString().split('T')[0];
 }
 
+export function daysBetween(dateStr1, dateStr2) {
+  const d1 = new Date(dateStr1 + 'T00:00:00');
+  const d2 = new Date(dateStr2 + 'T00:00:00');
+  const diffMs = d2 - d1;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
 export function isToday(dateStr) {
   return dateStr === todayStr();
 }

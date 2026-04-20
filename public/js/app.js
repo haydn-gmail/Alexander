@@ -5,6 +5,8 @@ import { renderLogin } from './components/login.js';
 import { renderEntryForm } from './components/entry-form.js';
 import { renderTimeline } from './components/timeline.js';
 import { renderSummary } from './components/summary.js';
+import { renderSettingsForm } from './components/settings.js';
+import { daysBetween } from './utils.js';
 
 let currentDate = todayStr();
 let currentView = 'timeline'; // 'timeline' or 'summary'
@@ -46,17 +48,33 @@ async function renderApp() {
       ? t('timeline.yesterday')
       : formatDate(currentDate);
 
+  let dob = '';
+  let dayCountStr = '';
+  try {
+    const dobSetting = await api.getSetting('dob');
+    if (dobSetting && dobSetting.value) {
+      dob = dobSetting.value;
+      const days = daysBetween(dob, currentDate);
+      if (days >= 0) {
+        dayCountStr = ` <span style="font-size: 0.7em; font-weight: normal; opacity: 0.8; margin-left: 8px;">(Day ${days})</span>`;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to get DOB', err);
+  }
+
   app.innerHTML = `
     <div class="app-shell">
       <!-- Header -->
       <header class="app-header">
         <div class="header-left">
           <span class="app-logo">🍼</span>
-          <span class="app-title">${t('app_name')}</span>
+          <span class="app-title">${t('app_name')}${dayCountStr}</span>
         </div>
         <div class="header-right">
           <button class="lang-toggle" id="lang-toggle">${getLang() === 'en' ? '中文' : 'EN'}</button>
           <span class="user-badge">${user.name === 'dad' ? '👨' : user.name === 'mom' ? '👩' : '👪'} ${user.display_name}</span>
+          ${canEdit ? `<button class="icon-btn settings-btn" id="settings-btn" title="Settings">⚙️</button>` : ''}
           <button class="icon-btn logout-btn" id="logout-btn" title="${t('nav.logout')}">⬅️</button>
         </div>
       </header>
@@ -101,6 +119,12 @@ async function renderApp() {
     api.logout();
     renderLoginScreen();
   });
+
+  if (canEdit) {
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      showSettingsForm();
+    });
+  }
 
   document.getElementById('prev-day').addEventListener('click', () => {
     currentDate = addDays(currentDate, -1);
@@ -182,6 +206,20 @@ function showEntryForm(editEntry = null) {
       } catch (err) {
         alert(err.message);
       }
+    },
+  });
+}
+
+function showSettingsForm() {
+  const modalContainer = document.getElementById('modal-container');
+
+  renderSettingsForm(modalContainer, {
+    onCancel: () => {
+      modalContainer.innerHTML = '';
+    },
+    onSave: async (newDob) => {
+      modalContainer.innerHTML = '';
+      await renderApp(); // Re-render to update the day count
     },
   });
 }

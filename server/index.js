@@ -3,6 +3,7 @@ const path = require('path');
 const { initDB } = require('./db');
 const authRoutes = require('./routes/auth');
 const entriesRoutes = require('./routes/entries');
+const settingsRoutes = require('./routes/settings');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +17,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/entries', entriesRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // SPA fallback — serve index.html for all non-API routes
 app.get('*', (req, res) => {

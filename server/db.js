@@ -62,6 +62,13 @@ async function initDB() {
     db.run('ALTER TABLE entries ADD COLUMN bottle_ml INTEGER');
   }
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
   db.run(`CREATE INDEX IF NOT EXISTS idx_entries_date ON entries(date)`);
 
   // Seed default users if none exist
@@ -265,6 +272,27 @@ function getEntryById(id) {
   return entry;
 }
 
+function getSetting(key) {
+  const stmt = db.prepare('SELECT value FROM settings WHERE key = ?');
+  stmt.bind([key]);
+  let value = null;
+  if (stmt.step()) {
+    value = stmt.getAsObject().value;
+  }
+  stmt.free();
+  return value;
+}
+
+function setSetting(key, value) {
+  const stmt = db.prepare(`
+    INSERT INTO settings (key, value) VALUES (?, ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `);
+  stmt.run([key, value]);
+  stmt.free();
+  saveDB();
+}
+
 module.exports = {
   initDB,
   getDB,
@@ -278,4 +306,6 @@ module.exports = {
   getEntriesByRange,
   getSummaryByDate,
   getEntryById,
+  getSetting,
+  setSetting,
 };
