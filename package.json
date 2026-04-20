@@ -1,0 +1,18 @@
+{
+  "name": "alexander-baby-tracker",
+  "version": "1.0.0",
+  "description": "Newborn baby feeding and elimination tracker",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "seed": "node seed-from-photos.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "sql.js": "^1.11.0"
+  }
+}

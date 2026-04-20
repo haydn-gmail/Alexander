@@ -1,0 +1,13 @@
+node_modules/
+data/*.db
+.npm-cache/
+.DS_Store
+.env
+
+# Original tracking sheet photos (not needed in repo)
+*.HEIC
+*.heic
+IMG_*.jpg
+
+# Dev artifacts
+baby_tracker.html

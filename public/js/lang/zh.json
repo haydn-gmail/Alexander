@@ -1,0 +1,70 @@
+{
+  "app_name": "寶寶記錄",
+  "login": {
+    "title": "寶寶記錄",
+    "subtitle": "餵養與排泄追蹤",
+    "select_user": "請選擇身份",
+    "enter_pin": "輸入密碼",
+    "login_btn": "登入",
+    "error": "密碼錯誤，請重試。"
+  },
+  "nav": {
+    "timeline": "時間軸",
+    "summary": "總覽",
+    "logout": "登出"
+  },
+  "entry_form": {
+    "title": "新增記錄",
+    "edit_title": "編輯記錄",
+    "date": "日期",
+    "time": "時間",
+    "breast_right": "右",
+    "breast_left": "左",
+    "breastfeeding": "母乳",
+    "formula": "配方奶 (mL)",
+    "formula_ml": "毫升",
+    "urine": "小便",
+    "stool": "大便",
+    "stool_color": "大便顏色",
+    "colors": {
+      "black": "黑色",
+      "green": "綠色",
+      "yellow": "黃色",
+      "brown": "棕色"
+    },
+    "comments": "備註",
+    "save": "儲存",
+    "cancel": "取消",
+    "latching": "含乳",
+    "custom": "自訂"
+  },
+  "timeline": {
+    "title": "時間軸",
+    "no_entries": "今日無記錄",
+    "today": "今天",
+    "yesterday": "昨天",
+    "delete_confirm": "確定刪除此記錄？",
+    "logged_by": "記錄者"
+  },
+  "summary": {
+    "title": "每日總覽",
+    "total_feedings": "總餵食次數",
+    "breast_sessions": "母乳次數",
+    "formula_feeds": "配方奶次數",
+    "total_formula": "配方奶總量",
+    "urine_count": "小便",
+    "stool_count": "大便",
+    "last_feed": "上次餵食",
+    "last_diaper": "上次換尿布",
+    "right": "右",
+    "left": "左",
+    "never": "—",
+    "export": "匯出 CSV"
+  },
+  "common": {
+    "yes": "是",
+    "no": "否",
+    "ml": "毫升",
+    "add_entry": "新增記錄"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "app_name": "Baby Tracker",
+  "login": {
+    "title": "Baby Tracker",
+    "subtitle": "Feeding & Elimination Record",
+    "select_user": "Who are you?",
+    "enter_pin": "Enter PIN",
+    "login_btn": "Login",
+    "error": "Invalid PIN. Please try again."
+  },
+  "nav": {
+    "timeline": "Timeline",
+    "summary": "Summary",
+    "logout": "Logout"
+  },
+  "entry_form": {
+    "title": "New Entry",
+    "edit_title": "Edit Entry",
+    "date": "Date",
+    "time": "Time",
+    "breast_right": "Right",
+    "breast_left": "Left",
+    "breastfeeding": "Breastfeeding",
+    "formula": "Formula (mL)",
+    "formula_ml": "mL",
+    "urine": "Urine",
+    "stool": "Stool",
+    "stool_color": "Stool Color",
+    "colors": {
+      "black": "Black",
+      "green": "Green",
+      "yellow": "Yellow",
+      "brown": "Brown"
+    },
+    "comments": "Comments",
+    "save": "Save",
+    "cancel": "Cancel",
+    "latching": "Latching",
+    "custom": "Custom"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "no_entries": "No entries for this day",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "delete_confirm": "Delete this entry?",
+    "logged_by": "Logged by"
+  },
+  "summary": {
+    "title": "Daily Summary",
+    "total_feedings": "Total Feedings",
+    "breast_sessions": "Breast Sessions",
+    "formula_feeds": "Formula Feeds",
+    "total_formula": "Total Formula",
+    "urine_count": "Urine",
+    "stool_count": "Stool",
+    "last_feed": "Last Feed",
+    "last_diaper": "Last Diaper",
+    "right": "R",
+    "left": "L",
+    "never": "—",
+    "export": "Export CSV"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ml": "mL",
+    "add_entry": "Add Entry"
+  }
+}

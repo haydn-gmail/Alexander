@@ -1,0 +1,17 @@
+services:
+  baby-tracker:
+    build: .
+    container_name: baby-tracker
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-please-change-this-secret}
+      - NODE_ENV=production
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

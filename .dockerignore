@@ -1,0 +1,13 @@
+node_modules/
+data/
+.git/
+.gitignore
+.dockerignore
+.DS_Store
+.npm-cache/
+*.HEIC
+*.heic
+IMG_*.jpg
+baby_tracker.html
+README.md
+seed-from-photos.js
