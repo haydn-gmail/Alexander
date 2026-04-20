@@ -9,6 +9,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
     breast_right: '',
     breast_left: '',
     formula_ml: '',
+    bottle_ml: '',
     urine: 0,
     stool: 0,
     stool_color: '',
@@ -70,6 +71,25 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
             <input type="hidden" id="formula-ml-val" value="${entry.formula_ml || ''}" />
           </div>
 
+          <!-- Bottle Breast Milk -->
+          <div class="form-section">
+            <label class="form-label section-label">🧴 ${t('entry_form.bottle')}</label>
+            <div class="formula-presets" id="bottle-presets">
+              ${[10, 15, 20, 30, 40, 50, 60]
+                .map(
+                  (ml) => `
+                <button type="button" class="preset-btn bottle-preset-btn ${entry.bottle_ml == ml ? 'active' : ''}" data-ml="${ml}">${ml}</button>
+              `
+                )
+                .join('')}
+              <input type="number" class="form-input formula-custom" id="bottle-custom"
+                placeholder="${t('entry_form.custom')}"
+                value="${entry.bottle_ml && ![10, 15, 20, 30, 40, 50, 60].includes(Number(entry.bottle_ml)) ? entry.bottle_ml : ''}"
+                min="0" max="200" />
+            </div>
+            <input type="hidden" id="bottle-ml-val" value="${entry.bottle_ml || ''}" />
+          </div>
+
           <!-- Diaper -->
           <div class="form-section">
             <label class="form-label section-label">🧷 ${t('entry_form.urine')} & ${t('entry_form.stool')}</label>
@@ -115,6 +135,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
   let breastRight = entry.breast_right || '';
   let breastLeft = entry.breast_left || '';
   let formulaMl = entry.formula_ml || '';
+  let bottleMl = entry.bottle_ml || '';
   let urine = !!entry.urine;
   let stool = !!entry.stool;
   let stoolColor = entry.stool_color || '';
@@ -146,7 +167,27 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
 
   container.querySelector('#formula-custom').addEventListener('input', (e) => {
     formulaMl = e.target.value ? Number(e.target.value) : '';
-    container.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+    container.querySelectorAll('#formula-presets .preset-btn').forEach((b) => b.classList.remove('active'));
+  });
+
+  // Bottle breast milk presets
+  container.querySelectorAll('.bottle-preset-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.bottle-preset-btn').forEach((b) => b.classList.remove('active'));
+      const ml = Number(btn.dataset.ml);
+      if (bottleMl === ml) {
+        bottleMl = '';
+      } else {
+        bottleMl = ml;
+        btn.classList.add('active');
+      }
+      container.querySelector('#bottle-custom').value = '';
+    });
+  });
+
+  container.querySelector('#bottle-custom').addEventListener('input', (e) => {
+    bottleMl = e.target.value ? Number(e.target.value) : '';
+    container.querySelectorAll('.bottle-preset-btn').forEach((b) => b.classList.remove('active'));
   });
 
   // Diaper toggles
@@ -187,6 +228,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
       breast_right: breastRight || null,
       breast_left: breastLeft || null,
       formula_ml: formulaMl || null,
+      bottle_ml: bottleMl || null,
       urine: urine ? 1 : 0,
       stool: stool ? 1 : 0,
       stool_color: stoolColor || null,

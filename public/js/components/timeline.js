@@ -25,6 +25,7 @@ export function renderTimeline(container, entries, date, { onEdit, onDelete, can
       if (e.breast_right) badges.push(`<span class="badge badge-breast">🤱 ${t('entry_form.breast_right')}</span>`);
       if (e.breast_left) badges.push(`<span class="badge badge-breast">🤱 ${t('entry_form.breast_left')}</span>`);
       if (e.formula_ml) badges.push(`<span class="badge badge-formula">🍼 ${e.formula_ml}mL</span>`);
+      if (e.bottle_ml) badges.push(`<span class="badge badge-bottle">🧴 ${e.bottle_ml}mL</span>`);
       if (e.urine) badges.push(`<span class="badge badge-urine">💧</span>`);
       if (e.stool) {
         const colorLabel = e.stool_color ? ` ${t('entry_form.colors.' + e.stool_color)}` : '';

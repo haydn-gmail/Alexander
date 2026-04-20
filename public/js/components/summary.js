@@ -33,6 +33,10 @@ export function renderSummary(container, summary) {
         <div class="summary-value">${summary.total_formula_ml}<small>mL</small></div>
         <div class="summary-label">${t('summary.total_formula')} (${summary.formula_count}x)</div>
       </div>
+      <div class="summary-card accent-bottle">
+        <div class="summary-value">${summary.total_bottle_ml}<small>mL</small></div>
+        <div class="summary-label">${t('summary.bottle_feeds')} (${summary.bottle_count}x)</div>
+      </div>
       <div class="summary-card accent-urine">
         <div class="summary-value">${summary.urine_count}</div>
         <div class="summary-label">${t('summary.urine_count')}</div>

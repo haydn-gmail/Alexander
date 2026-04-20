@@ -52,7 +52,7 @@ router.get('/export', (req, res) => {
   const entries = getEntriesByRange(from, to);
 
   // CSV header
-  let csv = 'Date,Time,Breast Right,Breast Left,Formula (mL),Urine,Stool,Stool Color,Comments,Logged By\n';
+  let csv = 'Date,Time,Breast Right,Breast Left,Formula (mL),Bottle Breast Milk (mL),Urine,Stool,Stool Color,Comments,Logged By\n';
 
   for (const e of entries) {
     csv += [
@@ -61,6 +61,7 @@ router.get('/export', (req, res) => {
       e.breast_right || '',
       e.breast_left || '',
       e.formula_ml || '',
+      e.bottle_ml || '',
       e.urine ? 'Yes' : '',
       e.stool ? 'Yes' : '',
       e.stool_color || '',

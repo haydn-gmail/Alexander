@@ -20,6 +20,7 @@
   --accent-feed: #f72585;
   --accent-breast: #b5179e;
   --accent-formula: #4cc9f0;
+  --accent-bottle: #fbbf24;
   --accent-urine: #4895ef;
   --accent-stool: #f4a261;
   --accent-time: #06d6a0;
@@ -580,6 +581,11 @@ input:focus, textarea:focus {
   color: #4cc9f0;
 }
 
+.badge-bottle {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
 .badge-urine {
   background: rgba(72, 149, 239, 0.2);
   color: #4895ef;
@@ -673,6 +679,7 @@ input:focus, textarea:focus {
 .accent-feed { border-left-color: var(--accent-feed); }
 .accent-breast { border-left-color: var(--accent-breast); }
 .accent-formula { border-left-color: var(--accent-formula); }
+.accent-bottle { border-left-color: var(--accent-bottle); }
 .accent-urine { border-left-color: var(--accent-urine); }
 .accent-stool { border-left-color: var(--accent-stool); }
 .accent-time { border-left-color: var(--accent-time); }

@@ -44,6 +44,7 @@ async function initDB() {
       breast_right TEXT,
       breast_left TEXT,
       formula_ml INTEGER,
+      bottle_ml INTEGER,
       urine INTEGER DEFAULT 0,
       stool INTEGER DEFAULT 0,
       stool_color TEXT,
@@ -53,6 +54,13 @@ async function initDB() {
       updated_at TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  // Migration: add bottle_ml column if missing
+  try {
+    db.exec('SELECT bottle_ml FROM entries LIMIT 1');
+  } catch {
+    db.run('ALTER TABLE entries ADD COLUMN bottle_ml INTEGER');
+  }
 
   db.run(`CREATE INDEX IF NOT EXISTS idx_entries_date ON entries(date)`);
 
@@ -118,8 +126,8 @@ function getUserByName(name) {
 
 function createEntry(entry) {
   const stmt = db.prepare(`
-    INSERT INTO entries (date, time, breast_right, breast_left, formula_ml, urine, stool, stool_color, comments, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO entries (date, time, breast_right, breast_left, formula_ml, bottle_ml, urine, stool, stool_color, comments, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run([
     entry.date,
@@ -127,6 +135,7 @@ function createEntry(entry) {
     entry.breast_right || null,
     entry.breast_left || null,
     entry.formula_ml || null,
+    entry.bottle_ml || null,
     entry.urine ? 1 : 0,
     entry.stool ? 1 : 0,
     entry.stool_color || null,
@@ -145,7 +154,7 @@ function updateEntry(id, entry) {
   const stmt = db.prepare(`
     UPDATE entries SET
       date = ?, time = ?, breast_right = ?, breast_left = ?,
-      formula_ml = ?, urine = ?, stool = ?, stool_color = ?,
+      formula_ml = ?, bottle_ml = ?, urine = ?, stool = ?, stool_color = ?,
       comments = ?, updated_at = datetime('now')
     WHERE id = ?
   `);
@@ -155,6 +164,7 @@ function updateEntry(id, entry) {
     entry.breast_right || null,
     entry.breast_left || null,
     entry.formula_ml || null,
+    entry.bottle_ml || null,
     entry.urine ? 1 : 0,
     entry.stool ? 1 : 0,
     entry.stool_color || null,
@@ -207,6 +217,8 @@ function getSummaryByDate(date) {
     breast_left_count: 0,
     formula_count: 0,
     total_formula_ml: 0,
+    bottle_count: 0,
+    total_bottle_ml: 0,
     urine_count: 0,
     stool_count: 0,
     last_feed_time: null,
@@ -215,7 +227,7 @@ function getSummaryByDate(date) {
   };
 
   for (const e of entries) {
-    if (e.breast_right || e.breast_left || e.formula_ml) {
+    if (e.breast_right || e.breast_left || e.formula_ml || e.bottle_ml) {
       summary.total_feedings++;
       summary.last_feed_time = e.time;
     }
@@ -224,6 +236,10 @@ function getSummaryByDate(date) {
     if (e.formula_ml) {
       summary.formula_count++;
       summary.total_formula_ml += e.formula_ml;
+    }
+    if (e.bottle_ml) {
+      summary.bottle_count++;
+      summary.total_bottle_ml += e.bottle_ml;
     }
     if (e.urine) {
       summary.urine_count++;
