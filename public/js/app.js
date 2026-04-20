@@ -68,6 +68,9 @@ async function renderApp() {
   const iconSettings = `<svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
   const iconLogout = `<svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>`;
   const iconList = `<svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>`;
+  const iconCopy = `<svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
+  const iconTimeline = `<svg style="width:16px;height:16px;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+  const iconSummary = `<svg style="width:16px;height:16px;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>`;
 
   app.innerHTML = `
     <div class="app-shell">
@@ -94,11 +97,11 @@ async function renderApp() {
 
       <!-- Tab Bar -->
       <div class="tab-bar">
-        <button class="tab-btn ${currentView === 'timeline' ? 'active' : ''}" data-view="timeline">
-          📋 ${t('nav.timeline')}
+        <button class="tab-btn ${currentView === 'timeline' ? 'active' : ''}" data-view="timeline" style="display: flex; align-items: center; justify-content: center;">
+          ${iconTimeline} ${t('nav.timeline')}
         </button>
-        <button class="tab-btn ${currentView === 'summary' ? 'active' : ''}" data-view="summary">
-          📊 ${t('nav.summary')}
+        <button class="tab-btn ${currentView === 'summary' ? 'active' : ''}" data-view="summary" style="display: flex; align-items: center; justify-content: center;">
+          ${iconSummary} ${t('nav.summary')}
         </button>
       </div>
 
@@ -113,6 +116,7 @@ async function renderApp() {
           <button id="toggle-logs-btn" style="flex: 1; border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: var(--space-sm); background: var(--bg-card); color: var(--text-secondary); font-size: var(--font-size-sm); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
             ${iconList} Toggle Detailed Logs
           </button>
+          <button id="copy-logs-btn" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: var(--space-sm) 12px; background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Copy to Clipboard">${iconCopy}</button>
           ${canEdit ? `<button id="download-pdf-btn" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: var(--space-sm) 12px; background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Export PDF">${iconDownload}</button>` : ''}
         </div>
         <div id="logs-container" style="display: none; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); margin-top: var(--space-sm); padding: var(--space-md); max-height: 400px; overflow-y: auto;">
@@ -137,6 +141,23 @@ async function renderApp() {
   document.getElementById('logout-btn').addEventListener('click', () => {
     api.logout();
     renderLoginScreen();
+  });
+
+  document.getElementById('copy-logs-btn').addEventListener('click', async () => {
+    try {
+      const text = document.getElementById('logs-content').textContent;
+      if (!text || text === 'Loading logs...') {
+         alert('Please toggle the detailed logs open first to load the data.');
+         return;
+      }
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copy-logs-btn');
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = '✅';
+      setTimeout(() => btn.innerHTML = oldHtml, 2000);
+    } catch (err) {
+      alert('Failed to copy: ' + err.message);
+    }
   });
 
   if (canEdit) {
@@ -254,7 +275,7 @@ async function renderApp() {
           return b.time.localeCompare(a.time);
         });
 
-        let text = '';
+        let text = 'Baby Tracker Records\n\n';
         for (const e of entries) {
             let parts = [`${e.date} @ ${e.time}`];
             

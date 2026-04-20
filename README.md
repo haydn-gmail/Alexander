@@ -4,12 +4,13 @@ A mobile-first web app for tracking newborn feeding and elimination records. Bui
 
 ## Features
 
-- **Quick-tap logging** — Breast (L/R), Formula (mL presets), Urine, Stool with color
+- **Quick-tap logging** — Breast (L/R), Formula (mL presets), Bottle (BM), Urine, Stool with color
 - **Timeline view** — Chronological card-based log with daily navigation
 - **Daily summary** — Feeding counts, formula totals, diaper stats at a glance
+- **Detailed Logs & PDF Export** — View neatly formatted plain-text logs in-app, or download them as paginated PDFs
+- **Robust Web App** — Replaces buggy native mobile browser dialogs with custom modals to ensure PWA integrity on iOS
 - **Role-based access** — Dad & Mom get full CRUD, Family members get view-only
 - **Bilingual** — English (default) and 中文 with one-tap toggle
-- **PWA ready** — Add to home screen for app-like experience
 - **Dark mode** — Easy on the eyes for nighttime feedings
 
 ## Quick Start (Docker)
