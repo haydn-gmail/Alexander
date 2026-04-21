@@ -1,6 +1,6 @@
 import { initI18n, setLang, getLang, t } from './i18n.js';
 import * as api from './api.js';
-import { todayStr, addDays, isToday, isYesterday, formatDate } from './utils.js';
+import { todayStr, addDays, isToday, isYesterday, formatDate, copyToClipboard } from './utils.js';
 import { renderLogin } from './components/login.js';
 import { renderEntryForm } from './components/entry-form.js';
 import { renderTimeline } from './components/timeline.js';
@@ -71,6 +71,8 @@ async function renderApp() {
   const iconCopy = `<svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
   const iconTimeline = `<svg style="width:16px;height:16px;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
   const iconSummary = `<svg style="width:16px;height:16px;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>`;
+  const iconCheck = `<svg style="width:20px;height:20px;color:var(--accent-time);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+  const iconLoading = `<svg style="width:20px;height:20px;color:var(--text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" /></svg>`;
 
   app.innerHTML = `
     <div class="app-shell">
@@ -162,15 +164,14 @@ async function renderApp() {
 
   document.getElementById('copy-logs-btn').addEventListener('click', async () => {
     try {
-      const text = document.getElementById('logs-content').textContent;
-      if (!text || text === 'Loading logs...') {
-         alert('Please toggle the detailed logs open first to load the data.');
-         return;
+      let text = document.getElementById('logs-content').textContent;
+      if (!text || text === 'Loading logs...' || text.trim() === '') {
+         text = await generateTimelineTextLogs();
       }
-      await navigator.clipboard.writeText(text);
+      await copyToClipboard(text);
       const btn = document.getElementById('copy-logs-btn');
       const oldHtml = btn.innerHTML;
-      btn.innerHTML = '✅';
+      btn.innerHTML = iconCheck;
       setTimeout(() => btn.innerHTML = oldHtml, 2000);
     } catch (err) {
       alert('Failed to copy: ' + err.message);
@@ -179,15 +180,14 @@ async function renderApp() {
 
   document.getElementById('copy-summary-logs-btn').addEventListener('click', async () => {
     try {
-      const text = document.getElementById('summary-logs-content').textContent;
-      if (!text || text === 'Loading logs...' || text === '') {
-         alert('Please toggle the daily summary logs open first to load the data.');
-         return;
+      let text = document.getElementById('summary-logs-content').textContent;
+      if (!text || text === 'Loading logs...' || text.trim() === '') {
+         text = await generateSummaryTextLogs();
       }
-      await navigator.clipboard.writeText(text);
+      await copyToClipboard(text);
       const btn = document.getElementById('copy-summary-logs-btn');
       const oldHtml = btn.innerHTML;
-      btn.innerHTML = '✅';
+      btn.innerHTML = iconCheck;
       setTimeout(() => btn.innerHTML = oldHtml, 2000);
     } catch (err) {
       alert('Failed to copy: ' + err.message);
@@ -202,7 +202,7 @@ async function renderApp() {
       try {
         const btn = document.getElementById('download-pdf-btn');
         const oldHtml = btn.innerHTML;
-        btn.innerHTML = '⏳';
+        btn.innerHTML = iconLoading;
         
         const entries = await api.getAllEntries();
         entries.sort((a, b) => {
@@ -260,7 +260,8 @@ async function renderApp() {
         
         await html2pdf().set(opt).from(container).save();
         
-        btn.innerHTML = oldHtml;
+        btn.innerHTML = iconCheck;
+        setTimeout(() => btn.innerHTML = oldHtml, 2000);
       } catch (e) {
         console.error(e);
         alert('Failed to generate PDF: ' + e.message);
@@ -272,7 +273,7 @@ async function renderApp() {
       try {
         const btn = document.getElementById('download-summary-pdf-btn');
         const oldHtml = btn.innerHTML;
-        btn.innerHTML = '⏳';
+        btn.innerHTML = iconLoading;
         
         const entries = await api.getAllEntries();
         const grouped = {};
@@ -331,7 +332,8 @@ async function renderApp() {
         };
         
         await html2pdf().set(opt).from(container).save();
-        btn.innerHTML = oldHtml;
+        btn.innerHTML = iconCheck;
+        setTimeout(() => btn.innerHTML = oldHtml, 2000);
       } catch (e) {
         console.error(e);
         alert('Failed to generate PDF: ' + e.message);
@@ -365,6 +367,91 @@ async function renderApp() {
     });
   }
 
+  async function generateTimelineTextLogs() {
+    const entries = await api.getAllEntries();
+    entries.sort((a, b) => {
+      if (a.date !== b.date) return b.date.localeCompare(a.date);
+      return b.time.localeCompare(a.time);
+    });
+
+    let text = `${t('logs.timeline_header')}\n\n`;
+    for (const e of entries) {
+        let parts = [`${e.date} @ ${e.time}`];
+        
+        let bs = [];
+        let bDetails = [];
+        if (e.breast_left) {
+           bs.push('L');
+           if (e.breast_left !== 'Latching' && e.breast_left !== '含乳') bDetails.push(e.breast_left);
+        }
+        if (e.breast_right) {
+           bs.push('R');
+           if (e.breast_right !== 'Latching' && e.breast_right !== '含乳') bDetails.push(e.breast_right);
+        }
+        if (bs.length) {
+           parts.push(`${t('logs.breast')}: ${bs.join(', ')}`);
+        }
+
+        if (e.formula_ml) parts.push(`${t('logs.formula')}: ${e.formula_ml}${t('common.ml')}`);
+        if (e.bottle_ml) parts.push(`${t('logs.bottle_bm')}: ${e.bottle_ml}${t('common.ml')}`);
+        if (e.urine) parts.push(`${t('logs.urine')}`);
+        if (e.stool) {
+           parts.push(e.stool_color ? `${t('logs.stool')}: ${e.stool_color}` : `${t('logs.stool')}`);
+        }
+
+        let details = [];
+        if (bDetails.length) details.push([...new Set(bDetails)].join(', '));
+        if (e.comments) details.push(e.comments);
+        if (details.length) parts.push(`${t('logs.details')}: ${details.join(' | ')}`);
+
+        text += parts.join(' | ') + '\n';
+    }
+    return text;
+  }
+
+  async function generateSummaryTextLogs() {
+    const entries = await api.getAllEntries();
+    const grouped = {};
+    for (const e of entries) {
+       if (!grouped[e.date]) {
+           grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, comments: [] };
+       }
+       if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
+       if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
+       if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
+       if (e.urine) grouped[e.date].urine++;
+       if (e.stool) grouped[e.date].stool++;
+       if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
+    }
+    
+    const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
+    const dobSetting = await api.getSetting('dob');
+    const dobVal = dobSetting && dobSetting.value ? dobSetting.value : null;
+    
+    let text = `${t('logs.summary_header')}\n\n`;
+    for (const date of dates) {
+        const sum = grouped[date];
+        let fTypes = [];
+        if (sum.breast) fTypes.push(`${t('logs.breast')}: ${sum.breast}x`);
+        if (sum.formula) fTypes.push(`${t('logs.formula')}: ${sum.formula}${t('common.ml')}`);
+        if (sum.bottle) fTypes.push(`${t('logs.bottle_bm')}: ${sum.bottle}${t('common.ml')}`);
+        let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
+        
+        let prefixStr = '';
+        if (dobVal) {
+          const days = daysBetween(dobVal, date);
+          if (days >= 0) prefixStr = `(${t('logs.day_age')} ${days}) | `;
+        }
+
+        text += `[${date}]\n${prefixStr}${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n`;
+        if (sum.comments.length > 0) {
+           text += `${t('logs.details')}: ${[...new Set(sum.comments)].join(' | ')}\n`;
+        }
+        text += '\n';
+    }
+    return text;
+  }
+
   document.getElementById('toggle-logs-btn').addEventListener('click', async () => {
     const container = document.getElementById('logs-container');
     const isHidden = container.style.display === 'none';
@@ -373,46 +460,7 @@ async function renderApp() {
       const logsContent = document.getElementById('logs-content');
       logsContent.textContent = 'Loading logs...';
       try {
-        const entries = await api.getAllEntries();
-        // Sort DESC
-        entries.sort((a, b) => {
-          if (a.date !== b.date) return b.date.localeCompare(a.date);
-          return b.time.localeCompare(a.time);
-        });
-
-        let text = `${t('logs.timeline_header')}\n\n`;
-        for (const e of entries) {
-            let parts = [`${e.date} @ ${e.time}`];
-            
-            let bs = [];
-            let bDetails = [];
-            if (e.breast_left) {
-               bs.push('L');
-               if (e.breast_left !== 'Latching' && e.breast_left !== '含乳') bDetails.push(e.breast_left);
-            }
-            if (e.breast_right) {
-               bs.push('R');
-               if (e.breast_right !== 'Latching' && e.breast_right !== '含乳') bDetails.push(e.breast_right);
-            }
-            if (bs.length) {
-               parts.push(`${t('logs.breast')}: ${bs.join(', ')}`);
-            }
-
-            if (e.formula_ml) parts.push(`${t('logs.formula')}: ${e.formula_ml}${t('common.ml')}`);
-            if (e.bottle_ml) parts.push(`${t('logs.bottle_bm')}: ${e.bottle_ml}${t('common.ml')}`);
-            if (e.urine) parts.push(`${t('logs.urine')}`);
-            if (e.stool) {
-               parts.push(e.stool_color ? `${t('logs.stool')}: ${e.stool_color}` : `${t('logs.stool')}`);
-            }
-
-            let details = [];
-            if (bDetails.length) details.push([...new Set(bDetails)].join(', '));
-            if (e.comments) details.push(e.comments);
-            if (details.length) parts.push(`${t('logs.details')}: ${details.join(' | ')}`);
-
-            text += parts.join(' | ') + '\n';
-        }
-        logsContent.textContent = text;
+        logsContent.textContent = await generateTimelineTextLogs();
       } catch (err) {
         logsContent.textContent = 'Failed to load logs: ' + err.message;
       }
@@ -429,46 +477,7 @@ async function renderApp() {
       const logsContent = document.getElementById('summary-logs-content');
       logsContent.textContent = 'Loading logs...';
       try {
-        const entries = await api.getAllEntries();
-        const grouped = {};
-        for (const e of entries) {
-           if (!grouped[e.date]) {
-               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, comments: [] };
-           }
-           if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
-           if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
-           if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
-           if (e.urine) grouped[e.date].urine++;
-           if (e.stool) grouped[e.date].stool++;
-           if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
-        }
-        
-        const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
-        const dobSetting = await api.getSetting('dob');
-        const dobVal = dobSetting && dobSetting.value ? dobSetting.value : null;
-        
-        let text = `${t('logs.summary_header')}\n\n`;
-        for (const date of dates) {
-            const sum = grouped[date];
-            let fTypes = [];
-            if (sum.breast) fTypes.push(`${t('logs.breast')}: ${sum.breast}x`);
-            if (sum.formula) fTypes.push(`${t('logs.formula')}: ${sum.formula}${t('common.ml')}`);
-            if (sum.bottle) fTypes.push(`${t('logs.bottle_bm')}: ${sum.bottle}${t('common.ml')}`);
-            let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
-            
-            let prefixStr = '';
-            if (dobVal) {
-              const days = daysBetween(dobVal, date);
-              if (days >= 0) prefixStr = `(${t('logs.day_age')} ${days}) | `;
-            }
-
-            text += `[${date}]\n${prefixStr}${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n`;
-            if (sum.comments.length > 0) {
-               text += `${t('logs.details')}: ${[...new Set(sum.comments)].join(' | ')}\n`;
-            }
-            text += '\n';
-        }
-        logsContent.textContent = text;
+        logsContent.textContent = await generateSummaryTextLogs();
       } catch (err) {
         logsContent.textContent = 'Failed to load logs: ' + err.message;
       }
