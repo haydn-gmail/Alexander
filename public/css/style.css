@@ -23,6 +23,7 @@
   --accent-bottle: #fbbf24;
   --accent-urine: #4895ef;
   --accent-stool: #f4a261;
+  --accent-diaper: #9b5de5;
   --accent-time: #06d6a0;
   --accent-danger: #ef476f;
 
@@ -682,6 +683,7 @@ input:focus, textarea:focus {
 .accent-bottle { border-left-color: var(--accent-bottle); }
 .accent-urine { border-left-color: var(--accent-urine); }
 .accent-stool { border-left-color: var(--accent-stool); }
+.accent-diaper { border-left-color: var(--accent-diaper); }
 .accent-time { border-left-color: var(--accent-time); }
 
 /* ===========================

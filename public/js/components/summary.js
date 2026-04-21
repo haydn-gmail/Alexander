@@ -45,6 +45,10 @@ export function renderSummary(container, summary) {
         <div class="summary-value">${summary.stool_count}</div>
         <div class="summary-label">${t('summary.stool_count')}</div>
       </div>
+      <div class="summary-card accent-diaper">
+        <div class="summary-value">${summary.diaper_count}</div>
+        <div class="summary-label">${t('summary.diapers_used')}</div>
+      </div>
       <div class="summary-card accent-time">
         <div class="summary-value small-text">${lastFeed}</div>
         <div class="summary-label">${t('summary.last_feed')}</div>

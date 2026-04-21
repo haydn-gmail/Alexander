@@ -240,6 +240,7 @@ function getSummaryByDate(date) {
     total_bottle_ml: 0,
     urine_count: 0,
     stool_count: 0,
+    diaper_count: 0,
     last_feed_time: null,
     last_diaper_time: null,
     entries_count: entries.length,
@@ -267,6 +268,9 @@ function getSummaryByDate(date) {
     if (e.stool) {
       summary.stool_count++;
       summary.last_diaper_time = e.time;
+    }
+    if (e.urine || e.stool) {
+      summary.diaper_count++;
     }
   }
 
