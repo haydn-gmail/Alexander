@@ -307,15 +307,15 @@ async function renderApp() {
             if (sum.bottle) fTypes.push(`<strong>${t('logs.bottle_bm')}:</strong> ${sum.bottle}${t('common.ml')}`);
             let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
 
-            let prefixStr = '';
+            let dayCountStr = '';
             if (dobVal) {
               const days = daysBetween(dobVal, date);
-              if (days >= 0) prefixStr = `<span style="opacity: 0.8; font-weight: normal;">(${t('logs.day_age')} ${days})</span> &nbsp;|&nbsp; `;
+              if (days >= 0) dayCountStr = ` <span style="opacity: 0.8; font-weight: normal;">(${t('logs.day_age')} ${days})</span>`;
             }
 
             html += `<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5;">`;
-            html += `<div style="margin-bottom: 4px;"><strong>[${date}]</strong></div>`;
-            html += `<div>${prefixStr}<strong>${t('logs.feeds')}:</strong> ${sum.feeds} ${t('logs.total')}${fStr} &nbsp;|&nbsp; <strong>${t('logs.diapers')}:</strong> ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x</div>`;
+            html += `<div style="margin-bottom: 4px;"><strong>[[${date}]]</strong>${dayCountStr}</div>`;
+            html += `<div><strong>${t('logs.feeds')}:</strong> ${sum.feeds} ${t('logs.total')}${fStr} &nbsp;|&nbsp; <strong>${t('logs.diapers')}:</strong> ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x</div>`;
             if (sum.comments.length > 0) {
                html += `<div style="margin-top: 4px; color: var(--text-secondary); font-size: 13px;"><strong>${t('logs.details')}:</strong> ${[...new Set(sum.comments)].join(' | ')}</div>`;
             }
@@ -437,13 +437,13 @@ async function renderApp() {
         if (sum.bottle) fTypes.push(`${t('logs.bottle_bm')}: ${sum.bottle}${t('common.ml')}`);
         let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
         
-        let prefixStr = '';
+        let dayCountStr = '';
         if (dobVal) {
           const days = daysBetween(dobVal, date);
-          if (days >= 0) prefixStr = `(${t('logs.day_age')} ${days}) | `;
+          if (days >= 0) dayCountStr = ` (${t('logs.day_age')} ${days})`;
         }
 
-        text += `[${date}]\n${prefixStr}${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n`;
+        text += `[[${date}]]${dayCountStr}\n${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n`;
         if (sum.comments.length > 0) {
            text += `${t('logs.details')}: ${[...new Set(sum.comments)].join(' | ')}\n`;
         }
