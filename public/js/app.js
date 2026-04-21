@@ -278,13 +278,14 @@ async function renderApp() {
         const grouped = {};
         for (const e of entries) {
            if (!grouped[e.date]) {
-               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0 };
+               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, comments: [] };
            }
            if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
            if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
            if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
            if (e.urine) grouped[e.date].urine++;
            if (e.stool) grouped[e.date].stool++;
+           if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
         }
         
         const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
@@ -314,6 +315,9 @@ async function renderApp() {
             html += `<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5;">`;
             html += `<div style="margin-bottom: 4px;"><strong>[${date}]</strong></div>`;
             html += `<div>${prefixStr}<strong>${t('logs.feeds')}:</strong> ${sum.feeds} ${t('logs.total')}${fStr} &nbsp;|&nbsp; <strong>${t('logs.diapers')}:</strong> ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x</div>`;
+            if (sum.comments.length > 0) {
+               html += `<div style="margin-top: 4px; color: var(--text-secondary); font-size: 13px;"><strong>${t('logs.details')}:</strong> ${[...new Set(sum.comments)].join(' | ')}</div>`;
+            }
             html += `</div>`;
         }
         container.innerHTML = html;
@@ -429,13 +433,14 @@ async function renderApp() {
         const grouped = {};
         for (const e of entries) {
            if (!grouped[e.date]) {
-               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0 };
+               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, comments: [] };
            }
            if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
            if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
            if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
            if (e.urine) grouped[e.date].urine++;
            if (e.stool) grouped[e.date].stool++;
+           if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
         }
         
         const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
@@ -457,7 +462,11 @@ async function renderApp() {
               if (days >= 0) prefixStr = `(${t('logs.day_age')} ${days}) | `;
             }
 
-            text += `[${date}]\n${prefixStr}${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n\n`;
+            text += `[${date}]\n${prefixStr}${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x\n`;
+            if (sum.comments.length > 0) {
+               text += `${t('logs.details')}: ${[...new Set(sum.comments)].join(' | ')}\n`;
+            }
+            text += '\n';
         }
         logsContent.textContent = text;
       } catch (err) {
