@@ -211,7 +211,6 @@ async function renderApp() {
         });
 
         const container = document.createElement('div');
-        container.style.width = '800px';
         container.style.padding = '20px';
         container.style.fontFamily = 'Helvetica, Arial, sans-serif';
         container.style.color = '#333';
@@ -255,7 +254,7 @@ async function renderApp() {
           margin:       0.5,
           filename:     'baby_tracker_all.pdf',
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, windowWidth: 800 },
+          html2canvas:  { scale: 2 },
           jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
         
@@ -295,7 +294,6 @@ async function renderApp() {
         const dobVal = dobSetting && dobSetting.value ? dobSetting.value : null;
 
         const container = document.createElement('div');
-        container.style.width = '800px';
         container.style.padding = '20px';
         container.style.fontFamily = 'Helvetica, Arial, sans-serif';
         container.style.color = '#333';
@@ -329,7 +327,7 @@ async function renderApp() {
           margin:       0.5,
           filename:     'baby_tracker_daily_summary.pdf',
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, windowWidth: 800 },
+          html2canvas:  { scale: 2 },
           jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
         
