@@ -272,7 +272,7 @@ function getSummaryByDate(date) {
   for (const e of entries) {
     if (e.breast_right || e.breast_left || e.formula_ml || e.bottle_ml) {
       summary.total_feedings++;
-      summary.last_feed_time = e.time;
+      summary.last_feed_time = e.feed_end || e.time;
       if (e.feed_start && e.feed_end) {
         summary.total_feed_duration += calcDur(e.feed_start, e.feed_end);
       }
