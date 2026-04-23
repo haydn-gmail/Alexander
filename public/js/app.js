@@ -296,6 +296,12 @@ async function renderApp() {
            if (e.feed_start && e.feed_end) {
                grouped[e.date].duration = (grouped[e.date].duration || 0) + calculateDuration(e.feed_start, e.feed_end);
            }
+           if (e.breast_left || e.breast_right || e.formula_ml || e.bottle_ml) {
+               const cand = e.feed_end || e.time;
+               if (!grouped[e.date].lastFeed || cand > grouped[e.date].lastFeed) {
+                   grouped[e.date].lastFeed = cand;
+               }
+           }
         }
         
         const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
@@ -316,6 +322,7 @@ async function renderApp() {
             if (sum.bottle) fTypes.push(`<strong>${t('logs.bottle_bm')}:</strong> ${sum.bottle}${t('common.ml')}`);
             let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
             if (sum.duration) fStr += ` | 🕒 <strong>${t('summary.total_feeding_time')}:</strong> ${sum.duration}m`;
+            if (sum.lastFeed) fStr += ` | 🏁 <strong>${t('summary.last_feed')}:</strong> ${formatTime(sum.lastFeed)}`;
 
             let dayCountStr = '';
             if (dobVal) {
@@ -441,6 +448,12 @@ async function renderApp() {
        if (e.feed_start && e.feed_end) {
            grouped[e.date].duration = (grouped[e.date].duration || 0) + calculateDuration(e.feed_start, e.feed_end);
        }
+       if (e.breast_left || e.breast_right || e.formula_ml || e.bottle_ml) {
+           const cand = e.feed_end || e.time;
+           if (!grouped[e.date].lastFeed || cand > grouped[e.date].lastFeed) {
+               grouped[e.date].lastFeed = cand;
+           }
+       }
     }
     
     const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
@@ -456,6 +469,7 @@ async function renderApp() {
         if (sum.bottle) fTypes.push(`${t('logs.bottle_bm')}: ${sum.bottle}${t('common.ml')}`);
         let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
         if (sum.duration) fStr += ` | 🕒 ${t('summary.total_feeding_time')}: ${sum.duration}m`;
+        if (sum.lastFeed) fStr += ` | 🏁 ${t('summary.last_feed')}: ${formatTime(sum.lastFeed)}`;
         
         let dayCountStr = '';
         if (dobVal) {
