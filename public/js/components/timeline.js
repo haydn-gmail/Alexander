@@ -1,5 +1,5 @@
 import { t } from '../i18n.js';
-import { formatTime, isToday, isYesterday, formatDate, escapeHtml } from '../utils.js';
+import { formatTime, isToday, isYesterday, formatDate, escapeHtml, calculateDuration } from '../utils.js';
 import * as api from '../api.js';
 
 export function renderTimeline(container, entries, date, { onEdit, onDelete, canEdit }) {
@@ -32,11 +32,24 @@ export function renderTimeline(container, entries, date, { onEdit, onDelete, can
         badges.push(`<span class="badge badge-stool">💩${colorLabel}</span>`);
       }
 
+      let feedTimeStr = '';
+      if (e.feed_start || e.feed_end) {
+        const duration = calculateDuration(e.feed_start, e.feed_end);
+        if (duration !== null) {
+          feedTimeStr = `<div class="card-feed-time">⏱️ ${formatTime(e.feed_start)} - ${formatTime(e.feed_end)} (${duration}m)</div>`;
+        } else if (e.feed_start) {
+          feedTimeStr = `<div class="card-feed-time">⏱️ ${t('entry_form.feed_start')}: ${formatTime(e.feed_start)}</div>`;
+        } else {
+          feedTimeStr = `<div class="card-feed-time">⏱️ ${t('entry_form.feed_end')}: ${formatTime(e.feed_end)}</div>`;
+        }
+      }
+
       return `
         <div class="timeline-card" data-id="${e.id}">
           <div class="card-time">${formatTime(e.time)}</div>
           <div class="card-body">
             <div class="card-badges">${badges.join('')}</div>
+            ${feedTimeStr}
             ${e.comments ? `<div class="card-comment">${escapeHtml(e.comments)}</div>` : ''}
             ${e.created_by ? `<div class="card-meta">${t('timeline.logged_by')}: ${escapeHtml(e.created_by)}</div>` : ''}
           </div>

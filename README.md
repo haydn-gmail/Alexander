@@ -4,10 +4,11 @@ A mobile-first web app for tracking newborn feeding and elimination records. Bui
 
 ## Features
 
-- **Quick-tap logging** — Breast (L/R), Formula (mL presets), Bottle (BM), Urine, Stool with color
-- **Timeline view** — Chronological card-based log with daily navigation
-- **Daily summary** — Feeding counts, formula totals, diaper stats at a glance
-- **Detailed Logs & PDF Export** — View neatly formatted plain-text logs in-app, or download them as paginated PDFs
+- **Feeding Session Tracking** — Optional start and completion times for all feeding types (Breast, Formula, Bottle) with automatic session duration calculation
+- **Quick-tap logging** — Breast (L/R), Formula/Bottle (mL presets), Urine, Stool with color
+- **Timeline view** — Chronological card-based log with session durations highlighted
+- **Daily summary** — Feeding counts, total mL, **Total Feeding Time**, and diaper stats at a glance
+- **Log Exports** — Download neatly formatted PDFs, raw CSVs, or structured Markdown files (includes session times and daily feeding totals)
 - **Robust Web App** — Replaces buggy native mobile browser dialogs with custom modals to ensure PWA integrity on iOS
 - **Role-based access** — Dad & Mom get full CRUD, Family members get view-only
 - **Bilingual** — English (default) and 中文 with one-tap toggle

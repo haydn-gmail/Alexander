@@ -27,13 +27,16 @@
     "feeds": "餵食",
     "total": "共",
     "diapers": "尿布",
-    "day_age": "日齡"
+    "day_age": "日齡",
+    "duration": "時長"
   },
   "entry_form": {
     "title": "新增記錄",
     "edit_title": "編輯記錄",
     "date": "日期",
     "time": "時間",
+    "feed_start": "開始時間",
+    "feed_end": "完成時間",
     "breast_right": "右",
     "breast_left": "左",
     "breastfeeding": "母乳",
@@ -53,7 +56,8 @@
     "save": "儲存",
     "cancel": "取消",
     "latching": "含乳",
-    "custom": "自訂"
+    "custom": "自訂",
+    "feeding_times": "餵食時間"
   },
   "timeline": {
     "title": "時間軸",
@@ -78,7 +82,8 @@
     "right": "右",
     "left": "左",
     "never": "—",
-    "export": "匯出 CSV"
+    "export": "匯出 CSV",
+    "total_feeding_time": "總餵食時間"
   },
   "common": {
     "yes": "是",

@@ -62,6 +62,14 @@ async function initDB() {
     db.run('ALTER TABLE entries ADD COLUMN bottle_ml INTEGER');
   }
 
+  // Migration: add feeding time columns if missing
+  try {
+    db.exec('SELECT feed_start FROM entries LIMIT 1');
+  } catch {
+    db.run('ALTER TABLE entries ADD COLUMN feed_start TEXT');
+    db.run('ALTER TABLE entries ADD COLUMN feed_end TEXT');
+  }
+
   db.run(`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -133,12 +141,14 @@ function getUserByName(name) {
 
 function createEntry(entry) {
   const stmt = db.prepare(`
-    INSERT INTO entries (date, time, breast_right, breast_left, formula_ml, bottle_ml, urine, stool, stool_color, comments, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO entries (date, time, feed_start, feed_end, breast_right, breast_left, formula_ml, bottle_ml, urine, stool, stool_color, comments, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run([
     entry.date,
     entry.time,
+    entry.feed_start || null,
+    entry.feed_end || null,
     entry.breast_right || null,
     entry.breast_left || null,
     entry.formula_ml || null,
@@ -160,7 +170,7 @@ function createEntry(entry) {
 function updateEntry(id, entry) {
   const stmt = db.prepare(`
     UPDATE entries SET
-      date = ?, time = ?, breast_right = ?, breast_left = ?,
+      date = ?, time = ?, feed_start = ?, feed_end = ?, breast_right = ?, breast_left = ?,
       formula_ml = ?, bottle_ml = ?, urine = ?, stool = ?, stool_color = ?,
       comments = ?, updated_at = datetime('now')
     WHERE id = ?
@@ -168,6 +178,8 @@ function updateEntry(id, entry) {
   stmt.run([
     entry.date,
     entry.time,
+    entry.feed_start || null,
+    entry.feed_end || null,
     entry.breast_right || null,
     entry.breast_left || null,
     entry.formula_ml || null,
@@ -232,6 +244,7 @@ function getSummaryByDate(date) {
   const summary = {
     date,
     total_feedings: 0,
+    total_feed_duration: 0,
     breast_right_count: 0,
     breast_left_count: 0,
     formula_count: 0,
@@ -246,10 +259,23 @@ function getSummaryByDate(date) {
     entries_count: entries.length,
   };
 
+  const calcDur = (start, end) => {
+    if (!start || !end) return 0;
+    const [h1, m1] = start.split(':').map(Number);
+    const [h2, m2] = end.split(':').map(Number);
+    let d1 = h1 * 60 + m1;
+    let d2 = h2 * 60 + m2;
+    if (d2 < d1) d2 += 1440; // 24 * 60
+    return d2 - d1;
+  };
+
   for (const e of entries) {
     if (e.breast_right || e.breast_left || e.formula_ml || e.bottle_ml) {
       summary.total_feedings++;
       summary.last_feed_time = e.time;
+      if (e.feed_start && e.feed_end) {
+        summary.total_feed_duration += calcDur(e.feed_start, e.feed_end);
+      }
     }
     if (e.breast_right) summary.breast_right_count++;
     if (e.breast_left) summary.breast_left_count++;

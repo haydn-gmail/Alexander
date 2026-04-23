@@ -62,6 +62,16 @@ export function timeSince(timeStr, dateStr) {
   return `${hrs}h ${remainMins}m ago`;
 }
 
+export function calculateDuration(start, end) {
+  if (!start || !end) return null;
+  const [h1, m1] = start.split(':').map(Number);
+  const [h2, m2] = end.split(':').map(Number);
+  let d1 = h1 * 60 + m1;
+  let d2 = h2 * 60 + m2;
+  if (d2 < d1) d2 += 24 * 60; // assume next day if end < start
+  return d2 - d1;
+}
+
 export function escapeHtml(str) {
   if (!str) return '';
   const div = document.createElement('div');

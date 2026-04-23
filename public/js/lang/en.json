@@ -27,13 +27,16 @@
     "feeds": "Feeds",
     "total": "total",
     "diapers": "Diapers",
-    "day_age": "Day"
+    "day_age": "Day",
+    "duration": "Duration"
   },
   "entry_form": {
     "title": "New Entry",
     "edit_title": "Edit Entry",
     "date": "Date",
     "time": "Time",
+    "feed_start": "Start Time",
+    "feed_end": "Completion Time",
     "breast_right": "Right",
     "breast_left": "Left",
     "breastfeeding": "Breastfeeding",
@@ -53,7 +56,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "latching": "Latching",
-    "custom": "Custom"
+    "custom": "Custom",
+    "feeding_times": "Feeding Session Times"
   },
   "timeline": {
     "title": "Timeline",
@@ -78,7 +82,8 @@
     "right": "R",
     "left": "L",
     "never": "—",
-    "export": "Export CSV"
+    "export": "Export CSV",
+    "total_feeding_time": "Total Feeding Time"
   },
   "common": {
     "yes": "Yes",

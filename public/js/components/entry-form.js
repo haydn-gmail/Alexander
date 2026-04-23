@@ -3,9 +3,12 @@ import { todayStr, nowTimeStr } from '../utils.js';
 
 export function renderEntryForm(container, { onSave, onCancel, editEntry = null }) {
   const isEdit = !!editEntry;
+  const entryTime = nowTimeStr();
   const entry = editEntry || {
     date: todayStr(),
-    time: nowTimeStr(),
+    time: entryTime,
+    feed_start: entryTime,
+    feed_end: entryTime,
     breast_right: '',
     breast_left: '',
     formula_ml: '',
@@ -29,11 +32,26 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">${t('entry_form.date')}</label>
-              <input type="date" class="form-input" id="entry-date" value="${entry.date}" />
+              <input type="date" class="form-input" id="entry-date" value="${entry.date}" required />
             </div>
             <div class="form-group">
               <label class="form-label">${t('entry_form.time')}</label>
-              <input type="time" class="form-input" id="entry-time" value="${entry.time}" />
+              <input type="time" class="form-input" id="entry-time" value="${entry.time}" step="60" required />
+            </div>
+          </div>
+
+          <!-- Feeding Times (Optional) -->
+          <div class="form-section ${entry.breast_right || entry.breast_left || entry.formula_ml || entry.bottle_ml ? '' : 'hidden'}" id="feeding-times-section">
+            <label class="form-label section-label">⏱️ ${t('entry_form.feeding_times')}</label>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">${t('entry_form.feed_start')}</label>
+                <input type="time" class="form-input" id="feed-start" value="${entry.feed_start || entry.time}" step="60" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">${t('entry_form.feed_end')}</label>
+                <input type="time" class="form-input" id="feed-end" value="${entry.feed_end || entry.time}" step="60" />
+              </div>
             </div>
           </div>
 
@@ -66,7 +84,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
               <input type="number" class="form-input formula-custom" id="formula-custom"
                 placeholder="${t('entry_form.custom')}"
                 value="${entry.formula_ml && ![10, 15, 20, 30, 40, 50, 60].includes(Number(entry.formula_ml)) ? entry.formula_ml : ''}"
-                min="0" max="200" />
+                min="0" max="240" />
             </div>
             <input type="hidden" id="formula-ml-val" value="${entry.formula_ml || ''}" />
           </div>
@@ -85,7 +103,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
               <input type="number" class="form-input formula-custom" id="bottle-custom"
                 placeholder="${t('entry_form.custom')}"
                 value="${entry.bottle_ml && ![10, 15, 20, 30, 40, 50, 60].includes(Number(entry.bottle_ml)) ? entry.bottle_ml : ''}"
-                min="0" max="200" />
+                min="0" max="240" />
             </div>
             <input type="hidden" id="bottle-ml-val" value="${entry.bottle_ml || ''}" />
           </div>
@@ -140,14 +158,30 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
   let stool = !!entry.stool;
   let stoolColor = entry.stool_color || '';
 
+  function updateFeedingTimesVisibility() {
+    const isFeeding = !!(breastRight || breastLeft || formulaMl || bottleMl);
+    const section = container.querySelector('#feeding-times-section');
+    section.classList.toggle('hidden', !isFeeding);
+    
+    if (isFeeding && !isEdit) {
+      const curTime = container.querySelector('#entry-time').value;
+      const startInput = container.querySelector('#feed-start');
+      const endInput = container.querySelector('#feed-end');
+      if (!startInput.value) startInput.value = curTime;
+      if (!endInput.value) endInput.value = curTime;
+    }
+  }
+
   // Breast toggles
   container.querySelector('#breast-right-btn').addEventListener('click', (e) => {
     breastRight = breastRight ? '' : t('entry_form.latching');
     e.currentTarget.classList.toggle('active', !!breastRight);
+    updateFeedingTimesVisibility();
   });
   container.querySelector('#breast-left-btn').addEventListener('click', (e) => {
     breastLeft = breastLeft ? '' : t('entry_form.latching');
     e.currentTarget.classList.toggle('active', !!breastLeft);
+    updateFeedingTimesVisibility();
   });
 
   // Formula presets
@@ -162,12 +196,14 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
         btn.classList.add('active');
       }
       container.querySelector('#formula-custom').value = '';
+      updateFeedingTimesVisibility();
     });
   });
 
   container.querySelector('#formula-custom').addEventListener('input', (e) => {
     formulaMl = e.target.value ? Number(e.target.value) : '';
     container.querySelectorAll('#formula-presets .preset-btn').forEach((b) => b.classList.remove('active'));
+    updateFeedingTimesVisibility();
   });
 
   // Bottle breast milk presets
@@ -182,12 +218,14 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
         btn.classList.add('active');
       }
       container.querySelector('#bottle-custom').value = '';
+      updateFeedingTimesVisibility();
     });
   });
 
   container.querySelector('#bottle-custom').addEventListener('input', (e) => {
     bottleMl = e.target.value ? Number(e.target.value) : '';
     container.querySelectorAll('.bottle-preset-btn').forEach((b) => b.classList.remove('active'));
+    updateFeedingTimesVisibility();
   });
 
   // Diaper toggles
@@ -202,6 +240,17 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
     container.querySelector('#stool-colors').classList.toggle('hidden', !stool);
     if (!stool) stoolColor = '';
   });
+
+  // Date/Time sync for new entries
+  if (!isEdit) {
+    container.querySelector('#entry-time').addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val) {
+        container.querySelector('#feed-start').value = val;
+        container.querySelector('#feed-end').value = val;
+      }
+    });
+  }
 
   // Stool color selection
   container.querySelectorAll('.color-btn').forEach((btn) => {
@@ -222,9 +271,15 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
   // Submit
   container.querySelector('#entry-form').addEventListener('submit', (e) => {
     e.preventDefault();
+    
+    // Validate that if it's a feeding, we have the section visible
+    const isFeeding = !!(breastRight || breastLeft || formulaMl || bottleMl);
+    
     const data = {
       date: container.querySelector('#entry-date').value,
       time: container.querySelector('#entry-time').value,
+      feed_start: isFeeding ? (container.querySelector('#feed-start').value || null) : null,
+      feed_end: isFeeding ? (container.querySelector('#feed-end').value || null) : null,
       breast_right: breastRight || null,
       breast_left: breastLeft || null,
       formula_ml: formulaMl || null,

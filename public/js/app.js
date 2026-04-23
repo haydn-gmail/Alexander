@@ -1,6 +1,6 @@
 import { initI18n, setLang, getLang, t } from './i18n.js';
 import * as api from './api.js';
-import { todayStr, addDays, isToday, isYesterday, formatDate, copyToClipboard } from './utils.js';
+import { todayStr, addDays, isToday, isYesterday, formatDate, copyToClipboard, formatTime, calculateDuration } from './utils.js';
 import { renderLogin } from './components/login.js';
 import { renderEntryForm } from './components/entry-form.js';
 import { renderTimeline } from './components/timeline.js';
@@ -220,6 +220,12 @@ async function renderApp() {
         for (const e of entries) {
             let parts = [`<strong>${e.date} @ ${e.time}</strong>`];
             
+            if (e.feed_start || e.feed_end) {
+               const dur = calculateDuration(e.feed_start, e.feed_end);
+               const durStr = dur !== null ? `(${dur}m)` : '';
+               parts.push(`<strong>⏱️ ${formatTime(e.feed_start) || '?'} - ${formatTime(e.feed_end) || '?'} ${durStr}</strong>`);
+            }
+            
             let bs = [];
             let bDetails = [];
             if (e.breast_left) {
@@ -287,6 +293,9 @@ async function renderApp() {
            if (e.urine) grouped[e.date].urine++;
            if (e.stool) grouped[e.date].stool++;
            if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
+           if (e.feed_start && e.feed_end) {
+               grouped[e.date].duration = (grouped[e.date].duration || 0) + calculateDuration(e.feed_start, e.feed_end);
+           }
         }
         
         const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
@@ -306,6 +315,7 @@ async function renderApp() {
             if (sum.formula) fTypes.push(`<strong>${t('logs.formula')}:</strong> ${sum.formula}${t('common.ml')}`);
             if (sum.bottle) fTypes.push(`<strong>${t('logs.bottle_bm')}:</strong> ${sum.bottle}${t('common.ml')}`);
             let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
+            if (sum.duration) fStr += ` | 🕒 <strong>${t('summary.total_feeding_time')}:</strong> ${sum.duration}m`;
 
             let dayCountStr = '';
             if (dobVal) {
@@ -377,6 +387,12 @@ async function renderApp() {
     let text = `${t('logs.timeline_header')}\n\n`;
     for (const e of entries) {
         let parts = [`${e.date} @ ${e.time}`];
+
+        if (e.feed_start || e.feed_end) {
+           const dur = calculateDuration(e.feed_start, e.feed_end);
+           const durStr = dur !== null ? `(${dur}m)` : '';
+           parts.push(`⏱️ ${formatTime(e.feed_start) || '?'} - ${formatTime(e.feed_end) || '?'} ${durStr}`);
+        }
         
         let bs = [];
         let bDetails = [];
@@ -422,6 +438,9 @@ async function renderApp() {
        if (e.urine) grouped[e.date].urine++;
        if (e.stool) grouped[e.date].stool++;
        if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
+       if (e.feed_start && e.feed_end) {
+           grouped[e.date].duration = (grouped[e.date].duration || 0) + calculateDuration(e.feed_start, e.feed_end);
+       }
     }
     
     const dates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
@@ -436,6 +455,7 @@ async function renderApp() {
         if (sum.formula) fTypes.push(`${t('logs.formula')}: ${sum.formula}${t('common.ml')}`);
         if (sum.bottle) fTypes.push(`${t('logs.bottle_bm')}: ${sum.bottle}${t('common.ml')}`);
         let fStr = fTypes.length ? ` (${fTypes.join(', ')})` : '';
+        if (sum.duration) fStr += ` | 🕒 ${t('summary.total_feeding_time')}: ${sum.duration}m`;
         
         let dayCountStr = '';
         if (dobVal) {

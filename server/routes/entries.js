@@ -59,12 +59,14 @@ router.get('/export', (req, res) => {
   const entries = getEntriesByRange(from, to);
 
   // CSV header
-  let csv = 'Date,Time,Breast Right,Breast Left,Formula (mL),Bottle Breast Milk (mL),Urine,Stool,Stool Color,Comments,Logged By\n';
+  let csv = 'Date,Time,Start Time,End Time,Breast Right,Breast Left,Formula (mL),Bottle Breast Milk (mL),Urine,Stool,Stool Color,Comments,Logged By\n';
 
   for (const e of entries) {
     csv += [
       e.date,
       e.time,
+      e.feed_start || '',
+      e.feed_end || '',
       e.breast_right || '',
       e.breast_left || '',
       e.formula_ml || '',
@@ -112,6 +114,9 @@ router.get('/export/md', (req, res) => {
     if (e.bottle_ml) {
       type.push('Bottle(BM)');
       details.push(`${e.bottle_ml}mL`);
+    }
+    if (e.feed_start || e.feed_end) {
+      details.push(`Time: ${e.feed_start || '?'}-${e.feed_end || '?'}`);
     }
     if (e.urine) type.push('Urine');
     if (e.stool) {
