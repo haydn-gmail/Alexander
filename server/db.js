@@ -295,10 +295,6 @@ function getSummaryByDate(date) {
   for (const e of entries) {
     if (e.breast_right || e.breast_left || e.formula_ml || e.bottle_ml) {
       summary.total_feedings++;
-      const candidate = e.feed_end || e.time;
-      if (!summary.last_feed_time || candidate > summary.last_feed_time) {
-        summary.last_feed_time = candidate;
-      }
       if (e.feed_start && e.feed_end) {
         summary.total_feed_duration += calcDur(e.feed_start, e.feed_end);
       }
@@ -315,11 +311,9 @@ function getSummaryByDate(date) {
     }
     if (e.urine) {
       summary.urine_count++;
-      summary.last_diaper_time = e.time;
     }
     if (e.stool) {
       summary.stool_count++;
-      summary.last_diaper_time = e.time;
     }
     if (e.urine || e.stool) {
       summary.diaper_count++;
@@ -342,6 +336,57 @@ function getSummaryByDate(date) {
     }
   }
   stmt.free();
+
+  const lastFeedStmt = db.prepare(`
+    SELECT date, time, feed_start, feed_end
+    FROM entries
+    WHERE (breast_right IS NOT NULL OR breast_left IS NOT NULL OR formula_ml IS NOT NULL OR bottle_ml IS NOT NULL)
+      AND date <= ?
+    ORDER BY date DESC, time DESC
+    LIMIT 20
+  `);
+  lastFeedStmt.bind([date]);
+  let latestFeedObj = null;
+  let latestFeedStr = null;
+  let latestFeedDate = null;
+
+  while (lastFeedStmt.step()) {
+    const e = lastFeedStmt.getAsObject();
+    let feedEnd = e.feed_end || e.time;
+    let feedStart = e.feed_start || e.time;
+    let feedDate = e.date;
+    if (feedEnd < feedStart) {
+        const d = new Date(feedDate + 'T00:00:00');
+        d.setDate(d.getDate() + 1);
+        feedDate = d.toISOString().split('T')[0];
+    }
+    const candObj = new Date(`${feedDate}T${feedEnd}:00`);
+    if (!latestFeedObj || candObj > latestFeedObj) {
+        latestFeedObj = candObj;
+        latestFeedStr = feedEnd;
+        latestFeedDate = feedDate;
+    }
+  }
+  lastFeedStmt.free();
+  
+  summary.last_feed_time = latestFeedStr;
+  summary.last_feed_date = latestFeedDate;
+
+  const lastDiaperStmt = db.prepare(`
+    SELECT date, time
+    FROM entries
+    WHERE (urine = 1 OR stool = 1)
+      AND date <= ?
+    ORDER BY date DESC, time DESC
+    LIMIT 1
+  `);
+  lastDiaperStmt.bind([date]);
+  if (lastDiaperStmt.step()) {
+     const d = lastDiaperStmt.getAsObject();
+     summary.last_diaper_time = d.time;
+     summary.last_diaper_date = d.date;
+  }
+  lastDiaperStmt.free();
 
   return summary;
 }

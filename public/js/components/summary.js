@@ -2,19 +2,21 @@ import { t } from '../i18n.js';
 import { timeSince, formatTime, isToday } from '../utils.js';
 
 export function renderSummary(container, summary) {
-  const lastFeed =
-    summary.last_feed_time && isToday(summary.date)
-      ? timeSince(summary.last_feed_time, summary.date)
-      : summary.last_feed_time
-        ? formatTime(summary.last_feed_time)
-        : t('summary.never');
+  const feedDate = summary.last_feed_date || summary.date;
+  let lastFeed = t('summary.never');
+  if (summary.last_feed_time) {
+    const timeAgo = (isToday(summary.date) || isToday(feedDate)) ? timeSince(summary.last_feed_time, feedDate) : null;
+    const nextDayStr = (summary.last_feed_date && summary.last_feed_date !== summary.date) ? ' (+1)' : '';
+    lastFeed = timeAgo || (formatTime(summary.last_feed_time) + nextDayStr);
+  }
 
-  const lastDiaper =
-    summary.last_diaper_time && isToday(summary.date)
-      ? timeSince(summary.last_diaper_time, summary.date)
-      : summary.last_diaper_time
-        ? formatTime(summary.last_diaper_time)
-        : t('summary.never');
+  const diaperDate = summary.last_diaper_date || summary.date;
+  let lastDiaper = t('summary.never');
+  if (summary.last_diaper_time) {
+    const timeAgo = (isToday(summary.date) || isToday(diaperDate)) ? timeSince(summary.last_diaper_time, diaperDate) : null;
+    const nextDayStr = (summary.last_diaper_date && summary.last_diaper_date !== summary.date) ? ' (+1)' : '';
+    lastDiaper = timeAgo || (formatTime(summary.last_diaper_time) + nextDayStr);
+  }
 
   container.innerHTML = `
     <div class="summary-grid">

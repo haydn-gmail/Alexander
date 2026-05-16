@@ -50,7 +50,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
                 <input type="time" class="form-input" id="feed-start" value="${entry.feed_start || entry.time}" step="60" />
               </div>
               <div class="form-group">
-                <label class="form-label">${t('entry_form.feed_end')}</label>
+                <label class="form-label">${t('entry_form.feed_end')} <span id="next-day-indicator" style="color: var(--accent-formula); font-size: 0.8em; display: none;">(+1 Day)</span></label>
                 <input type="time" class="form-input" id="feed-end" value="${entry.feed_end || entry.time}" step="60" />
               </div>
             </div>
@@ -258,9 +258,27 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
       if (val) {
         container.querySelector('#feed-start').value = val;
         container.querySelector('#feed-end').value = val;
+        checkCrossMidnight();
       }
     });
   }
+
+  function checkCrossMidnight() {
+    const start = container.querySelector('#feed-start').value;
+    const end = container.querySelector('#feed-end').value;
+    const indicator = container.querySelector('#next-day-indicator');
+    if (indicator) {
+      if (start && end && end < start) {
+        indicator.style.display = 'inline';
+      } else {
+        indicator.style.display = 'none';
+      }
+    }
+  }
+
+  container.querySelector('#feed-start').addEventListener('input', checkCrossMidnight);
+  container.querySelector('#feed-end').addEventListener('input', checkCrossMidnight);
+  setTimeout(checkCrossMidnight, 0);
 
   // Stool color selection
   container.querySelectorAll('.color-btn').forEach((btn) => {
