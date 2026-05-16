@@ -78,6 +78,16 @@ async function initDB() {
     db.run('ALTER TABLE entries ADD COLUMN feed_end TEXT');
   }
 
+  // Migration: add or update grandparents user
+  const gpCount = db.exec("SELECT COUNT(*) FROM users WHERE name = 'grandparents'");
+  if (gpCount.length > 0 && gpCount[0].values[0][0] === 0) {
+    const hash = bcrypt.hashSync('7890', 10);
+    db.run(`INSERT INTO users (name, display_name, pin_hash, role) VALUES ('grandparents', 'Grandparents', '${hash}', 'admin')`);
+    console.log('Migration: added grandparents user (admin)');
+  } else {
+    db.run("UPDATE users SET role = 'admin' WHERE name = 'grandparents' AND role != 'admin'");
+  }
+
   db.run(`
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -93,6 +103,7 @@ async function initDB() {
     const users = [
       { name: 'dad', display_name: 'Dad', pin: '1234', role: 'admin' },
       { name: 'mom', display_name: 'Mom', pin: '5678', role: 'admin' },
+      { name: 'grandparents', display_name: 'Grandparents', pin: '7890', role: 'admin' },
       { name: 'family', display_name: 'Family', pin: '0000', role: 'viewer' },
     ];
 

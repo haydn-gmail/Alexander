@@ -2,7 +2,15 @@ import { t } from '../i18n.js';
 import * as api from '../api.js';
 
 export async function renderLogin(container, onSuccess) {
-  const users = await api.getUsers();
+  let users = await api.getUsers();
+
+  // Enforce order
+  const order = ['dad', 'mom', 'grandparents', 'family'];
+  users.sort((a, b) => {
+    const aIdx = order.indexOf(a.name);
+    const bIdx = order.indexOf(b.name);
+    return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+  });
 
   container.innerHTML = `
     <div class="login-screen">
@@ -20,7 +28,7 @@ export async function renderLogin(container, onSuccess) {
               .map(
                 (u) => `
               <button class="user-btn" data-name="${u.name}">
-                <span class="user-emoji">${u.name === 'dad' ? '👨' : u.name === 'mom' ? '👩' : '👪'}</span>
+                <span class="user-emoji">${u.name === 'dad' ? '👨' : u.name === 'mom' ? '👩' : u.name === 'grandparents' ? '👴👵' : '👪'}</span>
                 <span class="user-label">${u.display_name}</span>
               </button>
             `
