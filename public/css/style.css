@@ -24,6 +24,7 @@
   --accent-urine: #4895ef;
   --accent-stool: #f4a261;
   --accent-diaper: #9b5de5;
+  --accent-bath: #00b4d8;
   --accent-time: #06d6a0;
   --accent-danger: #ef476f;
 
@@ -601,6 +602,11 @@ input:focus, textarea:focus {
   color: #f4a261;
 }
 
+.badge-bath {
+  background: rgba(0, 180, 216, 0.2);
+  color: #00b4d8;
+}
+
 .card-comment {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
@@ -697,6 +703,7 @@ input:focus, textarea:focus {
 .accent-urine { border-left-color: var(--accent-urine); }
 .accent-stool { border-left-color: var(--accent-stool); }
 .accent-diaper { border-left-color: var(--accent-diaper); }
+.accent-bath { border-left-color: var(--accent-bath); }
 .accent-time { border-left-color: var(--accent-time); }
 
 /* ===========================

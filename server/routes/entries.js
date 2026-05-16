@@ -59,7 +59,7 @@ router.get('/export', (req, res) => {
   const entries = getEntriesByRange(from, to);
 
   // CSV header
-  let csv = 'Date,Time,Start Time,End Time,Breast Right,Breast Left,Formula (mL),Bottle Breast Milk (mL),Urine,Stool,Stool Color,Comments,Logged By\n';
+  let csv = 'Date,Time,Start Time,End Time,Breast Right,Breast Left,Formula (mL),Bottle Breast Milk (mL),Urine,Stool,Stool Color,Bath,Comments,Logged By\n';
 
   for (const e of entries) {
     csv += [
@@ -74,6 +74,7 @@ router.get('/export', (req, res) => {
       e.urine ? 'Yes' : '',
       e.stool ? 'Yes' : '',
       e.stool_color || '',
+      e.bath ? 'Yes' : '',
       `"${(e.comments || '').replace(/"/g, '""')}"`,
       e.created_by || '',
     ].join(',') + '\n';
@@ -123,6 +124,7 @@ router.get('/export/md', (req, res) => {
       type.push('Stool');
       if (e.stool_color) details.push(e.stool_color);
     }
+    if (e.bath) type.push('Bath');
 
     md += `| ${e.time} | ${type.join(', ')} | ${details.join(', ')} | ${e.comments || ''} | ${e.created_by || ''} |\n`;
   }

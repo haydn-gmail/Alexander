@@ -31,6 +31,7 @@ export function renderTimeline(container, entries, date, { onEdit, onDelete, can
         const colorLabel = e.stool_color ? ` ${t('entry_form.colors.' + e.stool_color)}` : '';
         badges.push(`<span class="badge badge-stool">💩${colorLabel}</span>`);
       }
+      if (e.bath) badges.push(`<span class="badge badge-bath">🛁 ${t('entry_form.bath')}</span>`);
 
       let feedTimeStr = '';
       if (e.feed_start || e.feed_end) {

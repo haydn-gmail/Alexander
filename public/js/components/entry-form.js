@@ -16,6 +16,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
     urine: 0,
     stool: 0,
     stool_color: '',
+    bath: 0,
     comments: '',
   };
 
@@ -110,13 +111,16 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
 
           <!-- Diaper -->
           <div class="form-section">
-            <label class="form-label section-label">🧷 ${t('entry_form.urine')} & ${t('entry_form.stool')}</label>
-            <div class="diaper-btns">
+            <label class="form-label section-label">🧷 ${t('entry_form.urine')}, ${t('entry_form.stool')} & ${t('entry_form.bath')}</label>
+            <div class="diaper-btns" style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button type="button" class="toggle-btn diaper-btn ${entry.urine ? 'active' : ''}" id="urine-btn">
                 💧 ${t('entry_form.urine')}
               </button>
               <button type="button" class="toggle-btn diaper-btn ${entry.stool ? 'active' : ''}" id="stool-btn">
                 💩 ${t('entry_form.stool')}
+              </button>
+              <button type="button" class="toggle-btn diaper-btn ${entry.bath ? 'active' : ''}" id="bath-btn">
+                🛁 ${t('entry_form.bath')}
               </button>
             </div>
             <div class="stool-colors ${entry.stool ? '' : 'hidden'}" id="stool-colors">
@@ -157,6 +161,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
   let urine = !!entry.urine;
   let stool = !!entry.stool;
   let stoolColor = entry.stool_color || '';
+  let bath = !!entry.bath;
 
   function updateFeedingTimesVisibility() {
     const isFeeding = !!(breastRight || breastLeft || formulaMl || bottleMl);
@@ -241,6 +246,11 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
     if (!stool) stoolColor = '';
   });
 
+  container.querySelector('#bath-btn').addEventListener('click', (e) => {
+    bath = !bath;
+    e.currentTarget.classList.toggle('active', bath);
+  });
+
   // Date/Time sync for new entries
   if (!isEdit) {
     container.querySelector('#entry-time').addEventListener('input', (e) => {
@@ -287,6 +297,7 @@ export function renderEntryForm(container, { onSave, onCancel, editEntry = null 
       urine: urine ? 1 : 0,
       stool: stool ? 1 : 0,
       stool_color: stoolColor || null,
+      bath: bath ? 1 : 0,
       comments: container.querySelector('#entry-comments').value || null,
     };
 

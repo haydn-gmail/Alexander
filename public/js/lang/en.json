@@ -27,6 +27,7 @@
     "feeds": "Feeds",
     "total": "total",
     "diapers": "Diapers",
+    "bath": "Bath",
     "day_age": "Day",
     "duration": "Duration"
   },
@@ -44,6 +45,7 @@
     "bottle": "Bottle Breast Milk (mL)",
     "formula_ml": "mL",
     "urine": "Urine",
+    "bath": "Bath",
     "stool": "Stool",
     "stool_color": "Stool Color",
     "colors": {
@@ -77,6 +79,8 @@
     "urine_count": "Urine",
     "stool_count": "Stool",
     "diapers_used": "Diapers Used",
+    "bath_count": "Bath",
+    "days_since_last_bath": "Days since last bath",
     "last_feed": "Last Feed",
     "last_diaper": "Last Diaper",
     "right": "R",

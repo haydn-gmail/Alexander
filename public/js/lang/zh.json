@@ -27,6 +27,7 @@
     "feeds": "餵食",
     "total": "共",
     "diapers": "尿布",
+    "bath": "洗澡",
     "day_age": "日齡",
     "duration": "時長"
   },
@@ -44,6 +45,7 @@
     "bottle": "瓶餵母乳 (mL)",
     "formula_ml": "毫升",
     "urine": "小便",
+    "bath": "洗澡",
     "stool": "大便",
     "stool_color": "大便顏色",
     "colors": {
@@ -77,6 +79,8 @@
     "urine_count": "小便",
     "stool_count": "大便",
     "diapers_used": "尿布次數",
+    "bath_count": "洗澡次數",
+    "days_since_last_bath": "距離上次洗澡天數",
     "last_feed": "上次餵食",
     "last_diaper": "上次換尿布",
     "right": "右",

@@ -48,6 +48,7 @@ async function initDB() {
       urine INTEGER DEFAULT 0,
       stool INTEGER DEFAULT 0,
       stool_color TEXT,
+      bath INTEGER DEFAULT 0,
       comments TEXT,
       created_by TEXT,
       created_at TEXT DEFAULT (datetime('now')),
@@ -60,6 +61,13 @@ async function initDB() {
     db.exec('SELECT bottle_ml FROM entries LIMIT 1');
   } catch {
     db.run('ALTER TABLE entries ADD COLUMN bottle_ml INTEGER');
+  }
+
+  // Migration: add bath column if missing
+  try {
+    db.exec('SELECT bath FROM entries LIMIT 1');
+  } catch {
+    db.run('ALTER TABLE entries ADD COLUMN bath INTEGER DEFAULT 0');
   }
 
   // Migration: add feeding time columns if missing
@@ -141,8 +149,8 @@ function getUserByName(name) {
 
 function createEntry(entry) {
   const stmt = db.prepare(`
-    INSERT INTO entries (date, time, feed_start, feed_end, breast_right, breast_left, formula_ml, bottle_ml, urine, stool, stool_color, comments, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO entries (date, time, feed_start, feed_end, breast_right, breast_left, formula_ml, bottle_ml, urine, stool, stool_color, bath, comments, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run([
     entry.date,
@@ -156,6 +164,7 @@ function createEntry(entry) {
     entry.urine ? 1 : 0,
     entry.stool ? 1 : 0,
     entry.stool_color || null,
+    entry.bath ? 1 : 0,
     entry.comments || null,
     entry.created_by || null,
   ]);
@@ -172,7 +181,7 @@ function updateEntry(id, entry) {
     UPDATE entries SET
       date = ?, time = ?, feed_start = ?, feed_end = ?, breast_right = ?, breast_left = ?,
       formula_ml = ?, bottle_ml = ?, urine = ?, stool = ?, stool_color = ?,
-      comments = ?, updated_at = datetime('now')
+      bath = ?, comments = ?, updated_at = datetime('now')
     WHERE id = ?
   `);
   stmt.run([
@@ -187,6 +196,7 @@ function updateEntry(id, entry) {
     entry.urine ? 1 : 0,
     entry.stool ? 1 : 0,
     entry.stool_color || null,
+    entry.bath ? 1 : 0,
     entry.comments || null,
     id,
   ]);
@@ -254,6 +264,8 @@ function getSummaryByDate(date) {
     urine_count: 0,
     stool_count: 0,
     diaper_count: 0,
+    bath_count: 0,
+    days_since_last_bath: null,
     last_feed_time: null,
     last_diaper_time: null,
     entries_count: entries.length,
@@ -301,7 +313,24 @@ function getSummaryByDate(date) {
     if (e.urine || e.stool) {
       summary.diaper_count++;
     }
+    if (e.bath) {
+      summary.bath_count++;
+    }
   }
+
+  const stmt = db.prepare('SELECT date FROM entries WHERE bath = 1 AND date <= ? ORDER BY date DESC LIMIT 1');
+  stmt.bind([date]);
+  if (stmt.step()) {
+    const lastBathDate = stmt.getAsObject().date;
+    if (lastBathDate === date) {
+      summary.days_since_last_bath = 0;
+    } else {
+      const d1 = new Date(lastBathDate);
+      const d2 = new Date(date);
+      summary.days_since_last_bath = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+    }
+  }
+  stmt.free();
 
   return summary;
 }

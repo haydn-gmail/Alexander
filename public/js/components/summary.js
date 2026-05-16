@@ -49,6 +49,14 @@ export function renderSummary(container, summary) {
         <div class="summary-value">${summary.diaper_count}</div>
         <div class="summary-label">${t('summary.diapers_used')}</div>
       </div>
+      <div class="summary-card accent-bath">
+        <div class="summary-value">${summary.bath_count}</div>
+        <div class="summary-label">${t('summary.bath_count')}</div>
+      </div>
+      <div class="summary-card accent-bath">
+        <div class="summary-value">${summary.days_since_last_bath !== null ? summary.days_since_last_bath : t('summary.never')}</div>
+        <div class="summary-label">${t('summary.days_since_last_bath')}</div>
+      </div>
       ${summary.total_feed_duration > 0 ? `
       <div class="summary-card accent-feed">
         <div class="summary-value">${summary.total_feed_duration}<small>min</small></div>
