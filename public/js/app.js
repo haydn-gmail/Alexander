@@ -283,17 +283,32 @@ async function renderApp() {
         btn.innerHTML = iconLoading;
         
         const entries = await api.getAllEntries();
+        entries.sort((a, b) => {
+          if (a.date !== b.date) return a.date.localeCompare(b.date);
+          return a.time.localeCompare(b.time);
+        });
         const grouped = {};
+        let currentLastBathDate = null;
         for (const e of entries) {
            if (!grouped[e.date]) {
-               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, bath: 0, comments: [] };
+               let daysSince = null;
+               if (currentLastBathDate) {
+                   const d1 = new Date(currentLastBathDate);
+                   const d2 = new Date(e.date);
+                   daysSince = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+               }
+               grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, bath: 0, comments: [], days_since_last_bath: daysSince };
            }
            if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
            if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
            if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
            if (e.urine) grouped[e.date].urine++;
            if (e.stool) grouped[e.date].stool++;
-           if (e.bath) grouped[e.date].bath++;
+           if (e.bath) {
+               grouped[e.date].bath++;
+               grouped[e.date].days_since_last_bath = 0;
+               currentLastBathDate = e.date;
+           }
            if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
            if (e.feed_start && e.feed_end) {
                grouped[e.date].duration = (grouped[e.date].duration || 0) + calculateDuration(e.feed_start, e.feed_end);
@@ -334,7 +349,11 @@ async function renderApp() {
 
             html += `<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5;">`;
             html += `<div style="margin-bottom: 4px;"><strong>[[${date}]]</strong>${dayCountStr}</div>`;
-            html += `<div><strong>${t('logs.feeds')}:</strong> ${sum.feeds} ${t('logs.total')}${fStr} &nbsp;|&nbsp; <strong>${t('logs.diapers')}:</strong> ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x &nbsp;|&nbsp; <strong>${t('logs.bath')}:</strong> ${sum.bath}x</div>`;
+            
+            let bathStr = `<strong>${t('logs.bath')}:</strong> ${sum.bath}x`;
+            if (sum.days_since_last_bath !== null) bathStr += ` (${t('summary.days_since_last_bath')}: ${sum.days_since_last_bath})`;
+            
+            html += `<div><strong>${t('logs.feeds')}:</strong> ${sum.feeds} ${t('logs.total')}${fStr} &nbsp;|&nbsp; <strong>${t('logs.diapers')}:</strong> ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x &nbsp;|&nbsp; ${bathStr}</div>`;
             if (sum.comments.length > 0) {
                html += `<div style="margin-top: 4px; color: var(--text-secondary); font-size: 13px;"><strong>${t('logs.details')}:</strong> ${[...new Set(sum.comments)].join(' | ')}</div>`;
             }
@@ -437,17 +456,32 @@ async function renderApp() {
 
   async function generateSummaryTextLogs() {
     const entries = await api.getAllEntries();
+    entries.sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      return a.time.localeCompare(b.time);
+    });
     const grouped = {};
+    let currentLastBathDate = null;
     for (const e of entries) {
        if (!grouped[e.date]) {
-           grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, bath: 0, comments: [] };
+           let daysSince = null;
+           if (currentLastBathDate) {
+               const d1 = new Date(currentLastBathDate);
+               const d2 = new Date(e.date);
+               daysSince = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+           }
+           grouped[e.date] = { date: e.date, feeds: 0, breast: 0, formula: 0, bottle: 0, urine: 0, stool: 0, bath: 0, comments: [], days_since_last_bath: daysSince };
        }
        if (e.breast_left || e.breast_right) { grouped[e.date].feeds++; grouped[e.date].breast++; }
        if (e.formula_ml) { grouped[e.date].feeds++; grouped[e.date].formula += e.formula_ml; }
        if (e.bottle_ml) { grouped[e.date].feeds++; grouped[e.date].bottle += e.bottle_ml; }
        if (e.urine) grouped[e.date].urine++;
        if (e.stool) grouped[e.date].stool++;
-       if (e.bath) grouped[e.date].bath++;
+       if (e.bath) {
+           grouped[e.date].bath++;
+           grouped[e.date].days_since_last_bath = 0;
+           currentLastBathDate = e.date;
+       }
        if (e.comments && e.comments.trim() !== '') grouped[e.date].comments.push(e.comments.trim());
        if (e.feed_start && e.feed_end) {
            grouped[e.date].duration = (grouped[e.date].duration || 0) + calculateDuration(e.feed_start, e.feed_end);
@@ -481,7 +515,10 @@ async function renderApp() {
           if (days >= 0) dayCountStr = ` (${t('logs.day_age')} ${days})`;
         }
 
-        text += `[[${date}]]${dayCountStr}\n${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x | ${t('logs.bath')}: ${sum.bath}x\n`;
+        let bathStr = `${t('logs.bath')}: ${sum.bath}x`;
+        if (sum.days_since_last_bath !== null) bathStr += ` (${t('summary.days_since_last_bath')}: ${sum.days_since_last_bath})`;
+
+        text += `[[${date}]]${dayCountStr}\n${t('logs.feeds')}: ${sum.feeds} ${t('logs.total')}${fStr} | ${t('logs.diapers')}: ${t('logs.urine')} ${sum.urine}x, ${t('logs.stool')} ${sum.stool}x | ${bathStr}\n`;
         if (sum.comments.length > 0) {
            text += `${t('logs.details')}: ${[...new Set(sum.comments)].join(' | ')}\n`;
         }
